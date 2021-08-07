@@ -1,0 +1,23 @@
+<?php $v->layout('_theme'); ?>
+<?php if (Session()->USER_ID) : ?>
+    <?php if ($ticket) : ?>
+<form action="#" method="POST" enctype="multipart/form-data" id="commit-form">
+    <div class="row">
+        <div class="col-12 col-sm-4">
+            <?=$v->insert('ticket/sidebar'); ?>
+        </div>
+        <div class="col-12 col-sm-8">
+            <?=$v->insert('ticket/content'); ?>
+        </div>
+    </div>
+</form>
+    <?php else : ?>
+<div class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-circle"></i> Chamado não encontrado ou é invalido
+</div>
+    <?php endif; ?>
+<?php else : ?>
+<div class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-circle"></i> Você precisa está logado para visualizar está página.
+</div>
+<?php endif; ?>

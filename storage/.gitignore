@@ -1,0 +1,5 @@
+sessions/*
+upload/*
+
+!sessions/.gitkeep
+!upload/.gitkeep
