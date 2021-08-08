@@ -4,12 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Common\View;
 use App\Models\Entity\User;
-use App\Traits\Verify;
 
 class AuthController extends User
 {
-    use Verify;
-
     /** @var \App\Common\View */
     private $view;
 
@@ -33,13 +30,13 @@ class AuthController extends User
             'password' => htmlentities(strip_tags(input()->find('password')->getValue()), ENT_QUOTES, 'UTF-8')
         ];
 
-        if (!Verify::validationFields($required)) {
+        if (in_array('', $required)) {
             $message = 'Existem campos em branco por favor preencha todos os campos.';
             $this->viewLogin($required, $message);
             return;
         }
 
-        $user = $this->getUserByUsername($required['username']);
+        $user = $this->getUserByUsername(trim($required['username']));
 
         if (!$user) {
             $message = 'Usuário/Senha inválido ou não cadastrado.';
@@ -79,7 +76,7 @@ class AuthController extends User
         $user = $this->getUserByUsername(Session()->USERNAME);
 
         if (!$user || !Session()->has('USERNAME')) {
-            redirect("/helpdesk-dev/");
+            redirect(env('CONFIG_APP_PATH'));
             return;
         }
 

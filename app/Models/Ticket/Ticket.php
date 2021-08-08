@@ -37,9 +37,11 @@ class Ticket extends Layer
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ];
 
-    public function getTicketsByUsernameAndState(User $user, int $state = 1): ?array
+    
+    public function getTicketsByUsernameAndState(User $user, $top = 8,  int $state = 1): ?array
     {
-        return $this->find()->where(['USUARIO' => $user->Username, 'ESTADO' => $state])->all();
+        $limit = ($top ? "TOP {$top} *" : "*");
+        return $this->find($limit)->where(['USUARIO' => $user->Username, 'ESTADO' => $state])->all();
     }
 
     public function getTicketById(int $id): ?object

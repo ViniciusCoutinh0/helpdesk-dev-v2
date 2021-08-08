@@ -7,6 +7,7 @@ use App\Http\Controllers\AppController;
 use App\Http\Controllers\HttpController;
 
 SimpleRouter::get('/', [AppController::class, 'home'])->name('app.home');
+SimpleRouter::get('/list/all/user/{user}/by/state/{state}', [AppController::class, 'list'])->name('app.list.state');
 SimpleRouter::post('/auth/sign/in', [AuthController::class, 'signIn'])->name('auth.sigin');
 SimpleRouter::get('/auth/sign/out', [AuthController::class, 'signOut'])->name('auth.signout');
 

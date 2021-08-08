@@ -78,7 +78,7 @@
             <?php endforeach; ?>
         <?php else: ?>
             <div class="alert alert-info" role="alert">
-                Nenhum arquivo anexado no chamado.
+            <i class="fas fa-exclamation-circle"></i>  Nenhum arquivo anexado no chamado.
             </div>
         <?php endif; ?>
     </div>

@@ -67,6 +67,7 @@ abstract class Layer
 
     /**
      * @param string $columns
+     * @param int $top
      * @return Layer
     */
     public function find(string $columns = '*'): Layer
