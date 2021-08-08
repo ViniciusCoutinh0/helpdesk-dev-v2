@@ -6,8 +6,18 @@ use App\Layer\Layer;
 
 class SubCategory extends Layer
 {
+    /**
+     * Primary Key
+     *
+     * @var string
+    */
     protected $table = 'TICKETS_SUB_CATEGORIAS';
 
+    /**
+     * Primary Key
+     *
+     * @var string
+    */
     protected $prefix = 'TICKET_SUB_CATEGORIA';
 
     /**

@@ -3,20 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Common\View;
-use App\Core\Upload;
+use App\Models\Entity\User;
+use App\Models\Ticket\Ticket;
+use App\Models\Sector\Sector;
 use App\Models\Ticket\Answer;
 use App\Models\Ticket\SubCategory;
 use App\Models\Ticket\Attachment;
-use App\Models\Ticket\Rating;
-use App\Models\Ticket\Ticket;
-use App\Models\Entity\User;
-use App\Models\Sector\Sector;
-use App\Traits\Verify;
 
 class TicketController extends Ticket
 {
-    use Verify;
-
     /**
      * @var \App\Common\View
     */
@@ -35,10 +30,15 @@ class TicketController extends Ticket
     public function show(int $id): void
     {
         $user = (new User())->getUserById((int) Session()->USER_ID);
+        $ticket = (new Ticket())->getTicketById($id);
+        $commits = (new Answer())->getTicketResponses($ticket);
+        $attachments = (new Attachment())->getAttachmentById($ticket);
 
         echo $this->view->render('ticket', [
             'user' => $user,
-            'ticket' => $this->getTicketById($id)
+            'ticket' => $ticket,
+            'commits' => $commits,
+            'attachments' => $attachments
         ]);
     }
 
@@ -144,10 +144,10 @@ class TicketController extends Ticket
                 $filename = uniqid() . '.' . $item->getExtension();
                 $data['files'][] = [
                     'file_name' => $filename,
-                    'file_path' => '/storage/upload/anexos/' . $filename
+                    'file_path' => pathOs('/storage/upload/anexos/') . $filename
                 ];
 
-                $item->move(__DIR__ . '/../../../storage/upload/anexos/' . $filename);
+                $item->move(__DIR__ . pathOs('/../../../storage/upload/anexos/') . $filename);
             }
         }
 

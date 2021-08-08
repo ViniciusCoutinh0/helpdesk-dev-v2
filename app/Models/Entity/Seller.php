@@ -6,8 +6,18 @@ use App\Layer\Layer;
 
 class Seller extends Layer
 {
+    /**
+     * Primary Key
+     *
+     * @var string
+    */
     protected $table = 'VENDEDORES';
 
+    /**
+     * Primary Key
+     *
+     * @var string
+    */
     protected $prefix = 'VENDEDOR';
 
     /**
@@ -17,6 +27,5 @@ class Seller extends Layer
     public function sellerByNumber(int $entity): ?object
     {
         return $this->findBy($entity)->first();
-        // return (new Seller())->findBy(intval($number))->fetch();
     }
 }

@@ -123,11 +123,26 @@ function asset(string $path = null): string
 }
 
 /**
+ * @return string
+*/
+function pathOs(string $path, string $default = '/'): string
+{
+    return str_replace($default, DIRECTORY_SEPARATOR, $path);
+}
+
+/**
  * @return Session
 */
 function Session(): Session
 {
     return new Session();
+}
+/**
+ * @return string
+*/
+function env(string $key): string 
+{
+    return $_ENV[$key];
 }
 
 /**

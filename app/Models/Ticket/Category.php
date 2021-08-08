@@ -6,8 +6,18 @@ use App\Layer\Layer;
 
 class Category extends Layer
 {
+    /**
+     * Primary Key
+     *
+     * @var string
+    */
     protected $table = 'TICKETS_CATEGORIAS';
 
+    /**
+     * Primary Key
+     *
+     * @var string
+    */
     protected $prefix = 'TICKET_CATEGORIA';
 
 
@@ -21,15 +31,5 @@ class Category extends Layer
         ->join('TICKETS_DEPARTAMENTOS', 'TICKETS_DEPARTAMENTOS.TICKET_DEPARTAMENTO', '=', ' TICKETS_CATEGORIAS.TICKET_DEPARTAMENTO')
         ->where(['TICKETS_CATEGORIAS.TICKET_CATEGORIA' => $id])
         ->first();
-        // return (new Category())->find('TICKETS_CATEGORIAS.NOME AS CATEGORIA_NOME, TICKETS_DEPARTAMENTOS.*')
-        // ->join([
-        //     [
-        //         'JOIN'  => 'INNER JOIN',
-        //         'TABLE' => 'TICKETS_DEPARTAMENTOS',
-        //         'ON' => 'TICKETS_DEPARTAMENTOS.TICKET_DEPARTAMENTO = TICKETS_CATEGORIAS.TICKET_DEPARTAMENTO'
-        //     ]
-        // ])
-        // ->where(['TICKETS_CATEGORIAS.TICKET_CATEGORIA' => intval($id)])
-        // ->fetch();
     }
 }

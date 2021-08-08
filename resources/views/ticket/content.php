@@ -4,53 +4,97 @@
             Detalhes do Chamado: #<?=$ticket->ID_ARTIA ?> - <?=html_entity_decode($ticket->TITULO); ?>
         </h4>
         <div class="d-flex justify-content-between align-items-center">
-            <span class="fs-7" style="color: #8c8d8f;">Historico de iterações</span>
-            <span class="fs-7" style="color: #8c8d8f;">Utima Atualização: aaaa</span>
+            <span class="fs-7" style="color: #8c8d8f;">Histórico</span>
+            <?php if($ticket->ATUALIZACAO): ?>
+                <span class="fs-7" style="color: #8c8d8f;">Última atualização: <?=date('d/m á\s H:i', strtotime($ticket->ATUALIZACAO));  ?></span>
+            <?php endif; ?>
         </div>
     </div>
     <div class="box-content p-2">
         <?php $decode = json_decode($ticket->MENSAGEM); ?>
-        <?php for ($i = 0; $i < 3; $i++) : ?>
         <div class="d-flex p-1 align-items-center border-bottom">
-            <img class="avatar" src="http://localhost/helpdesk-dev/resources/images/user.png">
+            <img class="avatar" src="<?=asset($ticket->Avatar); ?>" alt="avatar.png">
             <div class="d-flex flex-column flex-wrap">
-                <div class="d-flex align-items-center">
-                    <strong class="mx-2">Vinicius Alves</strong>
-                    <div class="d-flex justify-content-between flex-fill">
-                        <span class="mx-2 fs-7 d-none d-sm-block">Desenvolvimento</span>
-                        <span class="fs-7" style="color: #8c8d8f;"><?=date('d/m à\s H:i:s'); ?></span>
+                <div class="d-flex justify-content-start align-items-center">
+                    <strong class="mx-2"><?=mb_convert_case($ticket->USUARIO, MB_CASE_TITLE, 'UTF-8'); ?></strong>
+                    <div class="d-flex justify-content-start flex-fill">
+                        <span class="mx-2 fs-7 d-none d-sm-block" style="color: #8c8d8f;">
+                            <?=mb_convert_case($ticket->SETOR, MB_CASE_TITLE, 'UTF-8'); ?>
+                        </span>
+                        <span class="fs-7" style="color: #8c8d8f;"><?=date('d/m à\s H:i:s', strtotime($ticket->INICIALIZACAO)); ?></span>
                     </div>
                 </div>
-                <div class="flex-fill p-2">
-                    <?=nl2br(html_entity_decode($decode->MESSAGE)); ?>
-                </div>
-                <div class="d-flex p-2">
-                    <a href="#" class="fs-7 text-reset text-decoration-none">Anexo</a>
-                    <a href="#" class="fs-7 text-reset text-decoration-none">Anexo</a>
+                <div class="p-2">
+                   <p class="text-break"> 
+                       <?=nl2br(html_entity_decode($decode->MESSAGE)); ?>
+                    </p>
                 </div>
             </div>
         </div>
-        <?php endfor; ?>
+        <?php if($commits): ?>
+        <?php foreach($commits as $commit): ?>
+            <div class="d-flex p-1 align-items-center border-bottom">
+            <img class="avatar" src="<?=asset(($commit->Avatar ?? 'resources/images/user.png')); ?>" alt="avatar.png">
+            <div class="d-flex flex-column flex-wrap w-100">
+                <div class="d-flex justify-content-start align-items-center">
+                    <strong class="mx-2"><?=mb_convert_case($commit->USUARIO, MB_CASE_TITLE, 'UTF-8'); ?></strong>
+                    <div class="d-flex justify-content-start flex-fill">
+                        <span class="mx-2 fs-7 d-none d-sm-block" style="color: #8c8d8f;">
+                            <?=mb_convert_case($commit->SETOR, MB_CASE_TITLE, 'UTF-8'); ?>
+                        </span>
+                        <span class="fs-7" style="color: #8c8d8f;"><?=date('d/m à\s H:i:s', strtotime($commit->INICIALIZACAO)); ?></span>
+                    </div>
+                </div>
+                <div class="p-2">
+                   <p class="text-break"> 
+                       <?=nl2br(html_entity_decode($commit->COMENTARIO)); ?>
+                    </p>
+                </div>
+                <?php if($commit->ENDERECO): ?>
+                    <?php $explode = explode('&', $commit->ENDERECO); $clear = array_filter($explode); ?>
+                    <?php foreach($clear as $item): ?>
+                        <div class="d-flex flex-wrap p-2">
+                            <a href="<?=defaultUrl() . '/' . $item; ?>" class="fs-7 text-reset text-decoration-none" target="_blank" rel="noopener noreferrer" style="margin-right: .5rem;">
+                                Anexo
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endforeach; ?>
+        <?php endif; ?>
     </div>
     <div class="box-header border-top">Arquivos anexados:</div>
     <div class="box-content p-2">
-        aaa
+        <?php if($attachments): ?>
+            <?php foreach($attachments as $attachment): ?>
+                <div class="d-flex flex-column flex-wrap p-2 border-bottom">
+                    <a class="text-reset text-decoration-none" href="<?=defaultUrl() . '/' . $attachment->ENDERECO;?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-solid fa-file"></i> Anexo</a>
+                    <span class="fs-7" style="color: #8c8d8f;">
+                        Enviado Por: <?=mb_convert_case($attachment->USUARIO, MB_CASE_TITLE, 'UTF-8'); ?> ás <?=date('d/m á\s H:i', strtotime($attachment->ENVIADO)); ?>
+                    </span>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="alert alert-info" role="alert">
+                Nenhum arquivo anexado no chamado.
+            </div>
+        <?php endif; ?>
     </div>
+    <?php if($ticket->ESTADO == 1): ?>
     <div class="box-content p-2 border-top">
     <label for="message" class="form-label required">Responder:</label>
         <div class="form-floating mb-2">
             <textarea name="message" id="message" maxlength="3000" style="height: 150px;" class="form-control" required><?=old('message');?></textarea>
             <label for="floatingTextarea">Seja o máximo possível descritivo na mensagem:</label>
         </div>
-
         <div class="form-group mb-2">
             <label for="attachment" class="form-label">Desejar anexar arquivos?</label>
             <input type="file" class="form-control" name="attachment[]" id="attachment" multiple>
             <span class="fs-7" style="color: #8c8d8f;">Apenas arquivos no formato: <strong>JPEG/JPG/PNG, EXCEL e PDF.</strong></span>
         </div>
-
         <button class="btn btn-danger btn-lg">Responder</button>
     </div>
-            
-    
+    <?php endif; ?>
 </div>

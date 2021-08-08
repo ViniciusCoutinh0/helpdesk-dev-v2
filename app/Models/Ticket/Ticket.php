@@ -44,11 +44,13 @@ class Ticket extends Layer
 
     public function getTicketById(int $id): ?object
     {
-        return $this->findBy($id, 'TICKETS_CHAMADOS.*, USUARIOS.NOME AS PROC_NOME')
+        return $this->findBy($id, 'TICKETS_CHAMADOS.*, Framework_Users.*, USUARIOS.NOME AS PROC_NOME')
         ->join('USUARIOS', 'USUARIOS.USUARIO', '=', 'TICKETS_CHAMADOS.RESPONSAVEL_ARTIA')
+        ->join('Framework_Users', 'Framework_Users.Username', '=', 'TICKETS_CHAMADOS.USUARIO')
         ->first();
     }
 
+    //implementar integracao com artia.
     public function createTicket(array $data): ?int
     {
         $subcategory = (new SubCategory())->findBy((int) $data['subcategory'])->first();

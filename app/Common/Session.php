@@ -7,7 +7,8 @@ class Session
     public function __construct()
     {
         if (!session_id()) {
-            session_save_path(__DIR__ . $_ENV['CONFIG_PATH_SESSION']);
+            $pathOs = str_replace('/', DIRECTORY_SEPARATOR, env('CONFIG_PATH_SESSION'));
+            session_save_path(__DIR__ . $pathOs);
             session_start();
         }
     }
