@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Common\Upload;
 use App\Common\View;
 use App\Models\Entity\User;
 use App\Models\Ticket\Ticket;
@@ -38,7 +39,8 @@ class TicketController extends Ticket
             'user' => $user,
             'ticket' => $ticket,
             'commits' => $commits,
-            'attachments' => $attachments
+            'attachments' => $attachments,
+            'message' => $this->message
         ]);
     }
 
@@ -133,32 +135,59 @@ class TicketController extends Ticket
             }
         }
 
-        foreach (input()->file('attachment') as $item) {
-            if (!empty($item->getType())) {
-                if (!in_array($item->getMime(), $this->isValid)) {
-                    $this->message = 'A Extensão não permitida no arquivo: ' . $item->getFilename();
-                    $this->viewStore();
-                    return;
-                }
+        $files = Upload::move(input()->file('attachment'), $this->isValid);
 
-                $filename = uniqid() . '.' . $item->getExtension();
-                $data['files'][] = [
-                    'file_name' => $filename,
-                    'file_path' => pathOs('/storage/upload/anexos/') . $filename
-                ];
-
-                $item->move(__DIR__ . pathOs('/../../../storage/upload/anexos/') . $filename);
-            }
+        if (isset($files['validation'])) {
+            $this->message = $files['validation'];
+            $this->viewStore();
+            return;
         }
 
         $merge = array_merge($required, $data);
 
-        $create = $this->createTicket($merge);
+        $create = $this->createTicket($merge, $files);
         if (!$create) {
             $this->message = 'Falha ao enviar as informações do chamado por favor tente novamente';
             $this->viewStore();
+            return;
         }
 
         redirect(url('ticket.show', ['id' => $create]));
+    }
+
+    public function commitStore(int $id): void
+    {
+        $message = clearHtml(input()->post('message')->getValue());
+
+        if (empty($message)) {
+            $this->message = 'Existem campos em branco por favor preencha todos os campos';
+            $this->show($id);
+            return;
+        }
+
+        $ticket = (new Ticket())->getTicketById($id);
+
+        if (!$ticket) {
+            redirect(url('app.home'));
+            return;
+        }
+
+        $files = Upload::move(input()->file('files'), $this->isValid);
+
+        if (isset($files['validation'])) {
+            $this->message = $files['validation'];
+            $this->show($id);
+            return;
+        }
+
+        $create = (new Answer())->createCommit($ticket, $message, $files);
+
+        if (!$create) {
+            $this->message = 'Falha ao enviar a resposta, por favor tente novamente';
+            $this->show($id);
+            return;
+        }
+
+        redirect(url('ticket.show', ['id' => $id]));
     }
 }

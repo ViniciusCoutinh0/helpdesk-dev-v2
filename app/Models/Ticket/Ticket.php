@@ -34,16 +34,27 @@ class Ticket extends Layer
         'application/pdf',
         'application/vnd.ms-excel',
         'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ];
 
-    
-    public function getTicketsByUsernameAndState(User $user, $top = 8,  int $state = 1): ?array
+
+    /**
+     * @param App\Models\Entity\User $user
+     * @param mixed $top
+     * @param int $state
+     * @return null|array
+    */
+    public function getTicketsByUsernameAndState(User $user, $top = 8, int $state = 1): ?array
     {
         $limit = ($top ? "TOP {$top} *" : "*");
         return $this->find($limit)->where(['USUARIO' => $user->Username, 'ESTADO' => $state])->all();
     }
 
+    /**
+     * @param int $id
+     * @return null|object
+    */
     public function getTicketById(int $id): ?object
     {
         return $this->findBy($id, 'TICKETS_CHAMADOS.*, Framework_Users.*, USUARIOS.NOME AS PROC_NOME')
@@ -52,8 +63,12 @@ class Ticket extends Layer
         ->first();
     }
 
-    //implementar integracao com artia.
-    public function createTicket(array $data): ?int
+    /**
+     * @param array $data
+     * @param array $files
+     * @return null|int
+    */
+    public function createTicket(array $data, array $files = []): ?int
     {
         $subcategory = (new SubCategory())->findBy((int) $data['subcategory'])->first();
         $category = (new Category())->joinDepartament((int) $subcategory->TICKET_CATEGORIA);
@@ -89,10 +104,10 @@ class Ticket extends Layer
         if ($column->save()) {
             $id = Db::getInstance()->lastInsertId();
 
-            if (isset($data['files'])) {
+            if (count($files)) {
                 $attachment = (new Attachment());
 
-                foreach ($data['files'] as $file) {
+                foreach ($files['files'] as $file) {
                     $attachment->TICKET_CHAMADO = $id;
                     $attachment->USUARIO = $data['username'];
                     $attachment->ENDERECO = $file['file_path'];
@@ -103,5 +118,10 @@ class Ticket extends Layer
             return $id;
         }
         return null;
+    }
+
+    public function getAllTicketsByBetween(string $first, string $last): ?array
+    {
+        return $this->find()->orWhere('CONVERT(DATE, INICIALIZACAO)', 'BETWEEN', "'{$first}' AND '{$last}'")->all();
     }
 }

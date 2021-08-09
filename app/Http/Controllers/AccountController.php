@@ -2,106 +2,107 @@
 
 namespace App\Http\Controllers;
 
-use App\Core\Upload;
 use App\Common\View;
-use App\Models\User\User;
-use App\Traits\Verify;
+use App\Common\Message;
+use App\Models\Entity\User;
+use App\Models\Rules\Rules;
+use App\Models\Sector\Sector;
 
 class AccountController extends User
 {
-    use Verify;
-
-    /** @var $view View */
+    /**
+     * @var App\Common\View
+    */
     private $view;
 
-    public function __construct($router)
+    /**
+     * @var App\Common\Message
+    */
+    private $message;
+
+    public function __construct()
     {
         $this->view = new View();
-        $this->view->addData([
-            'router' => $router,
-            'user' => (Verify::isUserId() ? (new User())->findBy((Session()->USER_ID))->fetch() : null)
-        ]);
+        $this->message = new Message();
     }
 
-    public function viewAccount(array $data): void
+    public function viewAccount(int $id): void
     {
+        $user = $this->getUserById((int) $id);
+        $sector = (new Sector())->getSectorByUser($user);
+        $rules = (new Rules())->getRulesBySector($sector);
+
         echo $this->view->render('account', [
-            'data' => $data,
-            'logged' => Verify::isLogged(),
+            'user' => $user,
+            'sector' => $sector,
+            'rules' => $rules
         ]);
     }
 
-    public function viewChangePassword(array $data, string $message = null): void
+    public function viewPassword(int $id): void
     {
+        $user = $this->getUserById((int) $id);
+        $sector = (new Sector())->getSectorByUser($user);
+
         echo $this->view->render('account/changePassword', [
-            'data' => $data,
-            'logged' => Verify::isLogged(),
-            'message' => $message
+            'user' => $user,
+            'sector' => $sector,
+            'message' => $this->message
         ]);
     }
 
-    public function changePassword(array $request): void
+    public function storePassword(int $id): void
     {
-        if (mb_strlen($request['newPassword']) <= 3) {
-            $message = 'Sua nova senha deve conter mais de 4 caracteres.';
-            $this->viewChangePassword($request, $message);
+        $required = [
+            'oldPassword' => input()->post('oldPassword')->getValue(),
+            'newPassword' => input()->post('newPassword')->getValue(),
+            'confirmPassword' => input()->post('confirmPassword')->getValue()
+        ];
+
+        if (in_array('', $required)) {
+            $this->message->error('Existem campos em branco, por favor preencha todos os campos');
+            $this->viewPassword($id);
             return;
         }
 
-        if ($request['newPassword'] != $request['confirmPassword']) {
-            $message = 'Confirmação da senha não confere com sua nova senha.';
-            $this->viewChangePassword($request, $message);
+        $required = array_map('clearHtml', $required);
+
+        $user = $this->getUserById((int) $id);
+
+        if (!$user) {
+            redirect(url('app.home'));
             return;
         }
 
-        $change = $this->changePass((int) Session()->USER_ID, [
-            'oldPassword' => strip_tags(trim($request['oldPassword'])),
-            'newPassword' => strip_tags(trim($request['newPassword']))
-        ]);
-
-        if (!$change) {
-            $message = 'Não foi possivel alterar a senha, por favor tente novamente.';
-            $this->viewChangePassword($request, $message);
+        if (mb_strlen($required['newPassword']) <= 2) {
+            $this->message->error('Sua nova senha deve conter mais de 3 caracteres');
+            $this->viewPassword($id);
             return;
         }
 
-        $message = 'Senha alterada com Sucesso!';
-        $this->viewChangePassword($request, $message);
-    }
-
-    public function viewChangeAvatar(array $data, string $message = null): void
-    {
-        echo $this->view->render('account/changeAvatar', [
-            'data' => $data,
-            'logged' => Verify::isLogged(),
-            'message' => $message
-        ]);
-    }
-
-    public function changeAvatar(array $data): void
-    {
-        if ($_FILES['newImage']['error'] == UPLOAD_ERR_NO_FILE) {
-            $message = 'Nenhuma imagem encontrada para ser enviada.';
-        } elseif (empty($_FILES['newImage']['type'])) {
-            $message = 'Tipo de arquivo não permitido.';
-        } else {
-            try {
-                $upload = new Upload('image');
-                $url = $upload->path('upload/avatar')
-                    ->size(120)
-                    ->user(Session()->USERNAME)
-                    ->image($_FILES['newImage']);
-
-                $change = (new User())->changeImage(Session()->USER_ID, $url);
-                if ($change == 'invalid_user') {
-                    $message = 'Falha ao buscar o usuário solicitado, tente novamente.';
-                }
-
-                $message = 'Avatar alterado com sucesso.';
-            } catch (\Exception $exception) {
-                $message = $exception->getMessage();
-            }
+        if ($required['newPassword'] != $required['confirmPassword']) {
+            $this->message->error('Confirmação de senha não confere com sua nova Senha');
+            $this->viewPassword($id);
+            return;
         }
-        $this->viewChangeAvatar($data, $message);
+
+        if (!password_verify($required['oldPassword'], $user->Password)) {
+            $this->message->error('Sua senha atual é inválida, por favor tente novamente');
+            $this->viewPassword($id);
+            return;
+        }
+
+        $update = $this->updatePasswordByUserId($id, $required['newPassword']);
+
+        if (!$update) {
+            $this->message->error('Não foi possível alterar sua senha, por favor tente novamente');
+            $this->viewPassword($id);
+            return;
+        }
+
+        $this->message->success('Sua senha foi alterada com sucesso.');
+        $this->viewPassword($id);
+
+        //redirect(url('account.password', ['user' => $id]));
     }
 }

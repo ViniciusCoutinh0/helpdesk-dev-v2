@@ -25,7 +25,7 @@
             <ul id="menu" role="menu">
                 <li><a href="<?=url('ticket.store.view', ['user' => $user->Framework_User]); ?>">Novo Chamado</a></li>
                 <li><a href="<?=url('app.home'); ?>">Lista de Chamados</a></li>
-                <li><a href="#">Configurações
+                <li><a href="<?=url('account.view', ['user' => $user->Framework_User]); ?>">Configurações
                         da Conta</a></li>
                 <li><a href="<?=url('auth.signout'); ?>">Sair</a></li>
             </ul>

@@ -3516,7 +3516,7 @@ textarea.form-control-lg {
 .table {
   --bs-table-bg: transparent;
   --bs-table-accent-bg: transparent;
-  --bs-table-striped-color: #242424;
+  --bs-table-striped-color: rgba(242, 243, 244, 0.7);
   --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
   --bs-table-active-color: #242424;
   --bs-table-active-bg: rgba(0, 0, 0, 0.1);
@@ -3526,7 +3526,7 @@ textarea.form-control-lg {
   margin-bottom: 1rem;
   color: #242424;
   vertical-align: top;
-  border-color: #e3e3e7;
+  border-color: #dfdfe3;
 }
 .table > :not(caption) > * > * {
   padding: 0.5rem 0.5rem;

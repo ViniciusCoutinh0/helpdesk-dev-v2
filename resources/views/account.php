@@ -1,6 +1,6 @@
 <?php $v->layout('_theme'); ?>
-<?php if ($logged) : ?>
-<div class="ui two column grid">
+<?php if (Session()->has('USER_ID')) : ?>
+<div class="row">
     <!-- Content --> 
         <?=$v->insert('account/home'); ?>
     <!-- Content -->

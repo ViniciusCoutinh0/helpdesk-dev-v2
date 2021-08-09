@@ -1,7 +1,8 @@
 <?php $v->layout('_theme'); ?>
 <?php if (Session()->USER_ID) : ?>
     <?php if ($ticket) : ?>
-<form action="#" method="POST" enctype="multipart/form-data" id="commit-form">
+<form action="<?=url('commit.store', ['id' => $ticket->TICKET_CHAMADO]); ?>" method="POST" enctype="multipart/form-data"
+    id="commit-form">
     <div class="row">
         <div class="col-12 col-sm-4">
             <?=$v->insert('ticket/sidebar'); ?>
@@ -11,9 +12,14 @@
         </div>
     </div>
 </form>
+        <?php $v->start('javascript'); ?>
+<script type="text/javascript">
+    onSubmit('commit-form', 'commit-btn');
+</script>
+        <?php $v->end(); ?>
     <?php else : ?>
 <div class="alert alert-danger" role="alert">
-    <i class="fas fa-exclamation-circle"></i> Chamado não encontrado ou é invalido
+    <i class="fas fa-exclamation-circle"></i> Chamado não encontrado ou é invalido.
 </div>
     <?php endif; ?>
 <?php else : ?>
