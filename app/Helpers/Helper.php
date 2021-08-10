@@ -101,6 +101,19 @@ function old(string $key): ?string
 }
 
 /**
+ * @param array $data
+ * @return void
+*/
+function clearCache(array $data): void
+{
+    if (count($data)) {
+        foreach ($data as $key => $value) {
+            input()->post($key)->setValue('');
+        }
+    }
+}
+
+/**
  * @return string
  */
 function defaultUrl(): string
@@ -140,7 +153,7 @@ function Session(): Session
 /**
  * @return string
 */
-function env(string $key): string 
+function env(string $key): string
 {
     return $_ENV[$key];
 }

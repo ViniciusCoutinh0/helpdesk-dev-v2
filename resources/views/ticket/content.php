@@ -13,7 +13,7 @@
     <div class="box-content p-2">
         <?php $decode = json_decode($ticket->MENSAGEM); ?>
         <div class="d-flex p-1 align-items-center border-bottom">
-            <img class="avatar" src="<?=asset($ticket->Avatar); ?>" alt="avatar.png">
+            <img class="avatar" src="<?=asset('storage/avatar/' . mb_strtoupper($ticket->USUARIO[0]) . '.png'); ?>" alt="avatar.png">
             <div class="d-flex flex-column flex-wrap">
                 <div class="d-flex justify-content-start align-items-center">
                     <strong class="mx-2"><?=mb_convert_case($ticket->USUARIO, MB_CASE_TITLE, 'UTF-8'); ?></strong>
@@ -34,7 +34,7 @@
         <?php if ($commits) : ?>
             <?php foreach ($commits as $commit) : ?>
             <div class="d-flex p-1 align-items-center border-bottom">
-            <img class="avatar" src="<?=asset(($commit->Avatar ?? 'resources/images/user.png')); ?>" alt="avatar.png">
+            <img class="avatar" src="<?=asset('storage/avatar/' . mb_strtoupper($commit->USUARIO[0]) . '.png'); ?>" alt="avatar.png">
             <div class="d-flex flex-column flex-wrap w-100">
                 <div class="d-flex justify-content-start align-items-center">
                     <strong class="mx-2"><?=mb_convert_case($commit->USUARIO, MB_CASE_TITLE, 'UTF-8'); ?></strong>

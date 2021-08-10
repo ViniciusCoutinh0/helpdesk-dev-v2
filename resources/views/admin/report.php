@@ -1,6 +1,6 @@
 <?php $v->layout('_theme'); ?>
 <?php if (Session()->has('USER_ID')) :?>
-<form method="POST" action="<?=url('admin.create.report', ['user' => $user->Framework_User]); ?>" id="form-report">
+<form method="POST" action="<?=url('admin.create.report'); ?>" id="form-report">
     <div class="row">
         <div class="col-12 col-sm-8 mb-2">
             <div class="box mb-2">
@@ -31,7 +31,7 @@
             <?php if ($message) : ?>
                 <?=$message; ?>    
             <?php endif; ?>
-            <?php if(count($data)):  ?>
+            <?php if (count($data)) :  ?>
                 <a href="<?=url('admin.output.report', ['first' => old('first_day'), 'last' => old('last_day')]); ?>" target="_blank" class="text-reset text-decoration-none" rel="noopener noreferrer" id="link-report">
                     <i class="fas fa-solid fa-download"></i> Download File.
                 </a>
@@ -51,6 +51,7 @@
             btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span> Gerando o Arquivo por favor aguarde...</span>';
             link.style.display = 'none';
         });
+        
     </script>
     <?php $v->end(); ?>
 <?php endif; ?>

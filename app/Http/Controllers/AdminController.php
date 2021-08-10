@@ -7,6 +7,7 @@ use App\Common\Message;
 use App\Models\Entity\User;
 use App\Models\Sector\Sector;
 use App\Models\Ticket\Ticket;
+use App\Core\Mail;
 use League\Csv\Writer;
 
 class AdminController extends User
@@ -24,43 +25,166 @@ class AdminController extends User
     public function __construct()
     {
         $this->view = new View();
+
+        $user = (new User())->getUserById((int) Session()->USER_ID);
+        $sector = (new Sector())->getSectorByUser($user);
+
+        $this->view->addData(compact('user', 'sector'));
         $this->message = new Message();
     }
 
-    public function viewCreateReport(int $id, array $data = []): void
+    public function listUsers(): void
     {
-        $user = $this->getUserById((int) $id);
-        $sector = (new Sector())->getSectorByUser($user);
-        $message = $this->message;
+        $listAll = (new User())->getAllUser();
 
-        echo $this->view->render('admin/report', compact('user', 'sector', 'message', 'data'));
+        echo $this->view->render('admin/listingUser', compact('listAll'));
     }
 
-    public function createReport(int $id): void
+    public function listSections(): void
     {
-        $required = [
-            'first' => input()->post('first_day')->getValue(),
-            'last'  => input()->post('last_day')->getValue()
-        ];
+    }
+
+    public function viewCreateUser(): void
+    {
+        $sectors = (new Sector())->getAllSectors();
+        $message = $this->message;
+
+        echo $this->view->render('admin/adduser', compact('sectors', 'message'));
+    }
+
+    public function createUser(): void
+    {
+        $required = input()->all();
+        array_shift($required);
 
         $required = array_map('clearHtml', $required);
 
         if (in_array('', $required)) {
             $this->message->error('Existem campos em branco, por favor preencha todos os campos');
-            $this->viewCreateReport($id);
+            $this->viewCreateUser();
             return;
         }
 
-        $data = (new Ticket())->getAllTicketsByBetween($required['first'], $required['last']);
+        $username = $this->find()->where(['Username' => $required['username']])->count();
+        $email = $this->find()->where(['Email' => $required['email']])->count();
+
+        if ($username) {
+            $this->message->error('Username já cadastrado no sistema');
+            $this->viewCreateUser();
+            return;
+        }
+
+        if ($email) {
+            $this->message->error('Endereço de E-mail já cadastrado no sistema');
+            $this->viewCreateUser();
+            return;
+        }
+
+        if (!filter_var($required['email'], FILTER_VALIDATE_EMAIL)) {
+            $this->message->error('Endereço de E-mail formato inválido');
+            $this->viewCreateUser();
+            return;
+        }
+
+        $create = $this->createUserByData($required);
+
+        if (!$create) {
+            $this->message->error('Não foi possivel criar o novo usuário');
+            $this->viewCreateUser();
+            return;
+        }
+
+        $this->message->success('Novo usuário ' . $required['username'] . ' criado com sucesso');
+        clearCache($required);
+        $this->viewCreateUser();
+    }
+
+    public function viewCreateReport(array $data = []): void
+    {
+        $message = $this->message;
+        echo $this->view->render('admin/report', compact('data', 'message'));
+    }
+
+
+    public function createReport(): void
+    {
+        $required = input()->all();
+        array_shift($required);
+        $required = array_map('clearHtml', $required);
+
+        if (in_array('', $required)) {
+            $this->message->error('Existem campos em branco, por favor preencha todos os campos');
+            $this->viewCreateReport();
+            return;
+        }
+
+        $data = (new Ticket())->getAllTicketsByBetween($required['first_day'], $required['last_day']);
 
         if (!$data) {
-            $this->message->error('Nenhum chamado encontrado entre as datas de ' . date('d/m', strtotime($required['first'])) . ' à ' . date('d/m', strtotime($required['last'])));
-            $this->viewCreateReport($id);
+            $this->message->error('Nenhum chamado encontrado entre as datas de ' . date('d/m', strtotime($required['first_day'])) . ' à ' . date('d/m', strtotime($required['last_day'])));
+            $this->viewCreateReport();
             return;
         }
 
         $this->message->success('Arquivo gerado com sucesso! Total de chamados no periódo selecionado: ' . count($data));
-        $this->viewCreateReport($id, $data);
+        $this->viewCreateReport($data);
+    }
+
+    public function viewUpdateUser(int $id): void
+    {
+        $currentId = (new User())->getUserById($id);
+        $sectors = (new Sector())->getAllSectors();
+        $message = $this->message;
+
+        echo $this->view->render('admin/updateUser', compact('currentId', 'sectors', 'message'));
+    }
+
+    public function updateUser(int $id): void
+    {
+        $required = [
+            'email' => input()->post('email')->getValue(),
+            'sector' => input()->post('sector')->getValue()
+        ];
+
+        if (in_array('', $required)) {
+            $this->message->error('Existem campos obrigatórios em branco por favor preencha todos os campos');
+            $this->viewUpdateUser($id);
+            return;
+        }
+
+        if (!filter_var($required['email'], FILTER_VALIDATE_EMAIL)) {
+            $this->message->error('Endereço de E-mail formato inválido');
+            $this->viewUpdateUser($id);
+            return;
+        }
+
+        $required['user_id'] = (int) $id;
+        $required['name'] = clearHtml(input()->post('name')->getValue());
+        $required['username'] = clearHtml(input()->post('username')->getValue());
+        $required['password'] = clearHtml(input()->post('password')->getValue());
+
+        if (!empty($required['password'])) {
+            ob_start();
+            include __DIR__ . '/../../../storage/layout/resetpassword.html';
+            $view = ob_get_clean();
+            $view = str_replace(['{username}', '{newpassword}'], [mb_strtoupper($required['username']), $required['password']], $view);
+
+            $mail = new Mail();
+            $mail->bootstrap('Sua nova senha em HelpDesk Promofarma', $view, $required['email'], $required['name']);
+            $mail->send();
+            ob_end_flush();
+        }
+
+        $update = $this->updateUserByData($required);
+
+        if (!$update) {
+            $this->message->error('Não foi possivel editar o usuário, por favor tente novamente');
+            $this->viewUpdateUser($id);
+            return;
+        }
+
+        $this->message->success('Usuário editado com sucesso');
+        $this->viewUpdateUser($id);
     }
 
     public function outputReport(string $first, string $last): void
@@ -70,7 +194,7 @@ class AdminController extends User
 
         $data = (new Ticket())->getAllTicketsByBetween($first, $last);
 
-        if(!count($data)) {
+        if (!count($data)) {
             return;
         }
 
@@ -78,15 +202,15 @@ class AdminController extends User
         $csv->setDelimiter(';');
         $header = [
             'Protocolo', 'ID Artia', 'Departamento', 'Categoria', 'Sub Categoria',
-            'Atendente/Responsavel', 'Cliente/Solicitante', 'Inicialização',
-            'Data de Criação', 'Data de Finalização', 'Horas de Abertura até a Finalização',
-            'Horas da Abertura até a Primeira Iteração', 'Plantão'
+            'Atendente/Responsavel', 'Cliente/Solicitante', utf8_decode('Inicialização'),
+            utf8_decode('Data de Criação'), utf8_decode('Data de Finalização'), utf8_decode('Horas de Abertura até a Finalização'),
+            utf8_decode('Horas da Abertura até a Primeira Iteração'), utf8_decode('Plantão')
         ];
-        
+
         $csv->insertOne($header);
 
         $lines = [];
-        foreach($data as $ticket) {
+        foreach ($data as $ticket) {
             $startup = new \DateTime($ticket->INICIALIZACAO);
             $completion = new \DateTime($ticket->FINALIZACAO_ARTIA);
             $firstCommit = new \DateTime($ticket->ATUALIZACAO);
@@ -97,16 +221,16 @@ class AdminController extends User
             ];
 
             $lines[] = [
-                $ticket->TICKET_CHAMADO, $ticket->ID_ARTIA, $ticket->DEPARTAMENTO,
-                $ticket->CATEGORIA, $ticket->SUB_CATEGORIA, mb_convert_case($ticket->USUARIO_PROC, MB_CASE_TITLE, 'UTF-8'),
+                $ticket->TICKET_CHAMADO, $ticket->ID_ARTIA, utf8_decode($ticket->DEPARTAMENTO),
+                utf8_decode($ticket->CATEGORIA), utf8_decode($ticket->SUB_CATEGORIA), mb_convert_case($ticket->USUARIO_PROC, MB_CASE_TITLE, 'UTF-8'),
                 $ticket->USUARIO, date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)), date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)),
-                ($ticket->FINALIZACAO_ARTIA ? date('d/m/Y H:i:s', strtotime($ticket->FINALIZACAO_ARTIA)) : ''), 
+                ($ticket->FINALIZACAO_ARTIA ? date('d/m/Y H:i:s', strtotime($ticket->FINALIZACAO_ARTIA)) : ''),
                 (!is_null($ticket->FINALIZACAO_ARTIA) ? $intervals['finish']->h . ':' . $intervals['finish']->i . ':' . $intervals['finish']->s : ''),
                 (!is_null($ticket->ATUALIZACAO) ? $intervals['commit']->h . ':' . $intervals['commit']->i . ':' . $intervals['commit']->s : ''),
-                ($ticket->PLANTAO === 'S' ? 'SIM' : 'NÃO')
+                ($ticket->PLANTAO === 'S' ? 'SIM' : utf8_decode('NÃO'))
             ];
-
         }
+
         $csv->insertAll($lines);
         $csv->output('Relatório_Chamados.csv');
         die();

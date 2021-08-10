@@ -14,7 +14,7 @@
     <?php if (Session()->has('USER_ID')) : ?>
     <header id="header">
         <a id="brand" href="<?=url('app.home'); ?>">
-            <img class="avatar" src="<?=asset($user->Avatar); ?>" alt="avatar.png" />
+            <img class="avatar" src="<?=asset('storage/avatar/' . mb_strtoupper($user->Username[0]) . '.png'); ?>" alt="avatar.png" />
             <?=mb_convert_case($user->Username, MB_CASE_TITLE);?>                       
         </a>
         <nav id="nav">

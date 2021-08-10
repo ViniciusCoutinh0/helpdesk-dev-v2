@@ -103,7 +103,7 @@ function categories() {
                                 fields.fields.forEach(field => {
                                     const div = document.createElement('div');
                                     div.className = 'form-group mb-2';
-
+                            
                                     const input = document.createElement('input');
                                     input.type = 'text';
                                     input.name = field.field_name;
@@ -209,3 +209,4 @@ function employee(id) {
         });
     });
 }
+

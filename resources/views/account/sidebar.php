@@ -18,16 +18,16 @@
     <div class="box-content p-2">
         <ul class="list-group">
             <li class="list-group-item">
-                <a href="<?=url('admin.view.report', ['user' => $user->Framework_User]); ?>" class="text-reset text-decoration-none">Relatório Chamados</a>
+                <a href="<?=url('admin.view.report');?>" class="text-reset text-decoration-none">Relatório de Chamados</a>
             </li>
             <li class="list-group-item">
-                <a href="#" class="text-reset text-decoration-none">Adicionar Novo Usuário</a>
+                <a href="<?=url('admin.view.create.user');?>" class="text-reset text-decoration-none">Novo Usuário</a>
             </li>
             <li class="list-group-item">
-                <a href="#" class="text-reset text-decoration-none">Adicionar Novo Setor</a>
+                <a href="#" class="text-reset text-decoration-none">Novo Setor</a>
             </li>
             <li class="list-group-item">
-                <a href="#" class="text-reset text-decoration-none">Editar Usuário</a>
+                <a href="<?=url('admin.list.all.users'); ?>" class="text-reset text-decoration-none">Editar Usuário</a>
             </li>
             <li class="list-group-item">
                 <a href="#" class="text-reset text-decoration-none">Editar Setor</a>

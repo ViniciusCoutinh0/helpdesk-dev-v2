@@ -33,6 +33,11 @@ class Sector extends Layer
         return $this->findBy($id)->first();
     }
 
+    public function getAllSectors(): ?array
+    {
+        return $this->find()->all();
+    }
+
     public function getAllSectorsAndUser(): ?array
     {
         return $this->find('Framework_Users.Framework_User, Framework_Users.Username, Framework_Sectors.Name Sector, Framework_Sectors.Framework_Sector')
