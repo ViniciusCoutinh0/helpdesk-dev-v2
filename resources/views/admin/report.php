@@ -13,13 +13,13 @@
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
                                 <label class="form-label required" for="first_day">Data Inicial:</label>
-                                <input type="date" name="first_day" id="first_day" class="form-control" min="2020-01-01" max="<?=date('Y-m-d'); ?>">
+                                <input type="date" name="first_day" id="first_day" class="form-control" min="2020-01-01" max="<?=date('Y-m-d'); ?>" value="<?=old('first_day'); ?>">
                             </div>
                         </div>
                         <div class="col-12 col-sm-6">
                             <div class="form-group">
                                 <label class="form-label required" for="last_day">Data Final:</label>
-                                <input type="date" name="last_day" id="last_day" class="form-control" min="2020-01-01" max="<?=date('Y-m-d'); ?>">
+                                <input type="date" name="last_day" id="last_day" class="form-control" min="2020-01-01" max="<?=date('Y-m-d'); ?>" value="<?=old('last_day'); ?>">
                             </div>
                         </div>
                     </div>
@@ -31,13 +31,26 @@
             <?php if ($message) : ?>
                 <?=$message; ?>    
             <?php endif; ?>
+            <?php if(count($data)):  ?>
+                <a href="<?=url('admin.output.report', ['first' => old('first_day'), 'last' => old('last_day')]); ?>" target="_blank" class="text-reset text-decoration-none" rel="noopener noreferrer" id="link-report">
+                    <i class="fas fa-solid fa-download"></i> Download File.
+                </a>
+            <?php endif; ?>
         </div>
         <?=$v->insert('account/sidebar'); ?>
     </div>
 </form>
     <?php $v->start('javascript'); ?>
     <script type="text/javascript">
-        onSubmit('form-report', 'btn-report');
+        const form = document.getElementById('form-report');
+        const btn  = document.getElementById('btn-report'); 
+        const link = document.getElementById('link-report');
+
+        form.addEventListener('submit', function () {
+            btn.setAttribute('disabled', true);
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span> Gerando o Arquivo por favor aguarde...</span>';
+            link.style.display = 'none';
+        });
     </script>
     <?php $v->end(); ?>
 <?php endif; ?>

@@ -38,7 +38,8 @@ SimpleRouter::group(['prefix' => 'admin'], function () {
     SimpleRouter::get('/update/section/{section}', [])->name('admin.list.all');
 
     SimpleRouter::get('/{user}/report', [AdminController::class, 'viewCreateReport'])->name('admin.view.report');
-    SimpleRouter::post('{user}/report/create/between/date', [AdminController::class, 'createReport'])->name('admin.create.report');
+    SimpleRouter::post('/{user}/report/find', [AdminController::class, 'createReport'])->name('admin.create.report');
+    SimpleRouter::get('/report/output/between/{first}/{last}', [AdminController::class, 'outputReport'])->name('admin.output.report');
 });
 
 SimpleRouter::group(['prefix' => 'request'], function () {

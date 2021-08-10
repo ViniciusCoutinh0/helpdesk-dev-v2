@@ -122,6 +122,8 @@ class Ticket extends Layer
 
     public function getAllTicketsByBetween(string $first, string $last): ?array
     {
-        return $this->find()->orWhere('CONVERT(DATE, INICIALIZACAO)', 'BETWEEN', "'{$first}' AND '{$last}'")->all();
+        return $this->find('TICKETS_CHAMADOS.*, USUARIOS.NOME USUARIO_PROC')
+        ->join('USUARIOS', 'USUARIOS.USUARIO', '=', 'TICKETS_CHAMADOS.RESPONSAVEL_ARTIA')
+        ->orWhere('CONVERT(DATE, TICKETS_CHAMADOS.INICIALIZACAO)', 'BETWEEN', "'{$first}' AND '{$last}'")->all();
     }
 }

@@ -117,6 +117,13 @@ class Message
         return $html;
     }
 
+    public function toHtml(string $message)
+    {
+        $this->text = $message;
+        $this->type = null;
+        return $this;
+    }
+
     /**
      * @return string
     */
