@@ -24,13 +24,13 @@
                 <a href="<?=url('admin.view.create.user');?>" class="text-reset text-decoration-none">Novo Usuário</a>
             </li>
             <li class="list-group-item">
-                <a href="#" class="text-reset text-decoration-none">Novo Setor</a>
+                <a href="<?=url('admin.view.create.sector'); ?>" class="text-reset text-decoration-none">Novo Setor</a>
             </li>
             <li class="list-group-item">
                 <a href="<?=url('admin.list.all.users'); ?>" class="text-reset text-decoration-none">Editar Usuário</a>
             </li>
             <li class="list-group-item">
-                <a href="#" class="text-reset text-decoration-none">Editar Setor</a>
+                <a href="<?=url('admin.list.all.sectors'); ?>" class="text-reset text-decoration-none">Editar Setor</a>
             </li>
         </ul>
     </div>

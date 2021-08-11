@@ -8,6 +8,7 @@ use App\Models\Entity\User;
 use App\Models\Sector\Sector;
 use App\Models\Ticket\Ticket;
 use App\Core\Mail;
+use App\Models\Rules\Rules;
 use League\Csv\Writer;
 
 class AdminController extends User
@@ -28,9 +29,9 @@ class AdminController extends User
 
         $user = (new User())->getUserById((int) Session()->USER_ID);
         $sector = (new Sector())->getSectorByUser($user);
+        $this->message = new Message();
 
         $this->view->addData(compact('user', 'sector'));
-        $this->message = new Message();
     }
 
     public function listUsers(): void
@@ -42,6 +43,9 @@ class AdminController extends User
 
     public function listSections(): void
     {
+        $sectors = (new Sector())->getAllSectors();
+
+        echo $this->view->render('admin/listingSector', compact('sectors'));
     }
 
     public function viewCreateUser(): void
@@ -234,5 +238,106 @@ class AdminController extends User
         $csv->insertAll($lines);
         $csv->output('Relatório_Chamados.csv');
         die();
+    }
+
+    public function viewCreateSector(): void
+    {
+        $message = $this->message;
+
+        echo $this->view->render('admin/addSector', compact('message'));
+    }
+
+    public function createSector(): void
+    { 
+        $required['rule_read']   = 'N';
+        $required['rule_create'] = 'N';
+        $required['rule_update'] = 'N';
+        $required['rule_delete'] = 'N';
+
+        foreach($required as $key => $value) {
+            if(input()->exists($key)) {
+                $required[$key] = (input()->post($key)->getValue() === 'on' ? 'S' : 'N');
+            }
+        }
+
+        $required['name'] = mb_convert_case(input()->post('name')->getValue(), MB_CASE_TITLE, 'UTF-8');
+        $required = array_map('clearHtml', $required);
+        
+        if(in_array('', $required)) {
+            $this->message->error('Existem campos em branco, por favor preencha todos os campos');
+            $this->viewCreateSector();
+            return;
+        }
+
+        $sector = (new Sector())->find()->where(['Name' => $required['name']])->count();
+
+        if($sector) {
+            $this->message->error('Nome de setor já cadastrado');
+            $this->viewCreateSector();
+            return;
+        }
+
+        $create = (new Sector())->store($required);
+
+        if(!$create) {
+            $this->message->error('Não foi possivel criar um novo setor');
+            $this->viewCreateSector();
+            return;
+        }
+
+        $this->message->success('Novo setor cadastrado com sucesso');
+        $this->viewCreateSector();
+    }
+
+    public function viewUpdateSector(int $id): void
+    {
+        $currentSector = (new Sector())->findBy($id)->first();
+        $rule = (new Rules())->getRulesBySector($currentSector);
+
+        if(!$currentSector) {
+            redirect(url('app.home'));
+            return;
+        }
+
+        $message = $this->message;
+        echo $this->view->render('admin/updateSector', compact('currentSector', 'rule', 'message'));
+    }
+
+    public function updateSector(int $id): void
+    {
+        $required['id'] = $id;
+        $required['name'] = mb_convert_case(input()->post('name')->getValue(), MB_CASE_TITLE, 'UTF-8');
+        $checkbox = $this->checkbox(['rule_read', 'rule_create', 'rule_update', 'rule_delete']);
+            
+        if(empty($required)) {
+            $this->message->error('Existem campos em branco, por favor preencha todos os campos');
+            $this->viewUpdateSector($id);
+            return;
+        }
+
+        $update = (new Sector())->updateByParam(array_merge($checkbox, $required));
+
+        if(!$update) {
+            $this->message->error('Existem campos em branco, por favor preencha todos os campos');
+            $this->viewUpdateSector($id);
+            return;
+        }   
+
+        $this->message->success('Setor alterado com sucesso');
+        $this->viewUpdateSector($id);
+
+    }
+
+    private function checkbox(array $data): array
+    {
+        $modified = [];
+        foreach($data as $key) {
+            if (input()->exists($key)) {
+                $modified[$key] = (input()->post($key)->getValue() === 'on' ? 'S' : 'N');
+            } else {
+                $modified[$key] = 'N';
+            }
+        }
+        return $modified;   
     }
 }

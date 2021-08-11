@@ -45,4 +45,39 @@ class Sector extends Layer
         ->orderBy('Framework_Sectors.Framework_Sector')
         ->all();
     }
+
+    public function store(array $data)
+    {
+        $rules = (new Rules());
+        $rules->Rule_Create = $data['rule_create'];
+        $rules->Rule_Read = $data['rule_read'];
+        $rules->Rule_Update = $data['rule_update'];
+        $rules->Rule_Delete = $data['rule_delete'];
+
+        $rules->save();
+        $ruleId = \App\Layer\Instance\Db::getInstance()->lastInsertId();
+
+        $sector = (new Sector());
+        $sector->Name = $data['name'];
+        $sector->Framework_Rule = (int) $ruleId;
+
+        return $sector->save();
+    }
+
+    public function updateByParam(array $data): bool
+    {
+        $sector = (new Sector())->findBy($data['id'])->first();
+        $sector->Framework_Sector = $data['id'];
+        $sector->Name = $data['name'];
+        $sector->save();
+
+        $rule = (new Rules())->getRulesBySector($sector);
+        $rule->Framework_Rule = $sector->Framework_Rule;
+        $rule->Rule_Read = $data['rule_read'];
+        $rule->Rule_Create = $data['rule_create'];
+        $rule->Rule_Update = $data['rule_update'];
+        $rule->Rule_Delete = $data['rule_delete'];
+
+        return $rule->save();
+    }
 }

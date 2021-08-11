@@ -1,90 +1,57 @@
 <?php $v->layout('_theme'); ?>
-<form action="<?=str_replace('{sector_id}', $data['sector_id'], $router->route('post.update.sector')); ?>" method="post" class="ui form js-update-sector-form">
-<?=csrfField(); ?>
-<div class="ui two column grid">
-    <?php if ($logged) :  ?>
-        <div class="sixteen wide mobile ten wide computer column">
-            <?php if ($user->getUserRules()->Rule_Update == 'S') : ?>
-                <div class="ui segments">
-            <div class="ui segment">
-                <h4>Editar Setor: <?=mb_convert_case($load->Name, MB_CASE_TITLE, 'UTF-8'); ?></h4>
+<?php if(Session()->USER_ID): ?>
+<form action="<?=url('admin.post.update.sector', ['sector' => $currentSector->Framework_Sector]); ?>" method="post" id="form-editsector">
+<div class="row">
+    <input type="hidden" name="csrf_token" value="<?=csrf_token(); ?>">
+    <div class="col-12 col-sm-8 mb-2">
+        <div class="box">
+            <div class="box-header">
+                <h4>Editar Setor: <?=$currentSector->Name; ?></h4>
             </div>
-            <div class="ui two column grid">
-                <div class="column">
-                <div class="ui basic segment">
-                    <div class="field required">
-                        <label for="sector">Nome do Setor:</label>
-                        <div class="ui input">
-                            <input type="text" name="sector" id="sector" autocomplete="off" value="<?=$load->Name; ?>" required>
+            <div class="box-content p-2">
+                <div class="form-group">
+                    <label for="name" class="form-label required">Nome do Setor:</label>
+                    <input type="text" name="name" id="name" class="form-control" autocomplete="off" value="<?=$currentSector->Name; ?>" required>
+                </div>
+            </div>
+            <div class="box-header border-top">Permissões:</div>
+            <div class="box-content p-2">   
+                <div class="row">
+                    <div class="col">
+                        <div class="form-check">
+                            <input type="checkbox" name="rule_read" id="rule_read" class="form-check-input" <?=($rule->Rule_Read === 'S' ? 'checked' : null); ?>>
+                            <label for="rule_read" class="form-check-label">Visualizar</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" name="rule_create" id="rule_create" class="form-check-input" <?=($rule->Rule_Create === 'S' ? 'checked' : null); ?>> 
+                            <label for="rule_create" class="form-check-label">Criar</label>
                         </div>
                     </div>
-                    <div class="ui message">
-                        <div class="content">
-                            <h5>Observações:</h5>
+                    <div class="col">
+                        <div class="form-check">
+                            <input type="checkbox" name="rule_update" id="rule_update" class="form-check-input" <?=($rule->Rule_Update === 'S' ? 'checked' : null); ?>>
+                            <label for="rule_update" class="form-check-label">Editar</label>
                         </div>
-                        <p class="text-mini">Para Administradores marcar todas as opções.</p>
+                        <div class="form-check">
+                            <input type="checkbox" name="rule_delete" id="rule_delete" class="form-check-input" <?=($rule->Rule_Delete === 'S' ? 'checked' : null); ?>>
+                            <label for="rule_delete" class="form-check-label">Deletar</label>
+                        </div>
                     </div>
-                </div>
-                </div>
-                <div class="column">
-                <div class="ui basic segment">
-                <h4>Permissões:</h4>
-                <div class="field">
-                    <div class="ui checkbox">
-                        <input type="checkbox" name="create" id="create" tabindex="0" <?=($load->Rule_Create == 'S' ? 'checked' : '');?>>
-                        <label for="create"><span data-inverted="" data-tooltip="Permite adicionar Usuários e Setores no Sistema." data-position="top center">Criar</span></label>
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="ui checkbox">
-                        <input type="checkbox" name="read" id="read" tabindex="0" <?=($load->Rule_Read == 'S' ? 'checked' : '');?>> 
-                        <label for="read"><span data-inverted="" data-tooltip="Permite visualizar chamados e configurações básicas da conta." data-position="top center">Visualizar</span></label>
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="ui checkbox">
-                        <input type="checkbox" name="update" id="update" tabindex="0" <?=($load->Rule_Update == 'S' ? 'checked' : '');?>>
-                        <label for="update"><span data-inverted="" data-tooltip="Permite editar Usuários e Setores no Sistema." data-position="top center">Editar</span></label>
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="ui checkbox">
-                        <input type="checkbox" name="delete" id="delete" tabindex="0" <?=($load->Rule_Delete == 'S' ? 'checked' : '');?>>
-                        <label for="delete"><span data-inverted="" data-tooltip="Permite excluir Usuários e Setores no Sistema." data-position="top center">Excluir</span></label>
-                    </div>
-                </div>
-                </div>
                 </div>
             </div>
-            <div class="ui segment">
-                <button class="ui labeled icon red button js-update-sector-btn">
-                    <i class="save icon"></i>
-                    Atualizar Setor
-                </button>
-            </div>
-            </div>
-                <?php if ($message) : ?>
-                    <div class="ui big message">
-                        <p><?=$message;?></p>
-                    </div>
-                <?php endif; ?>
-            <?php else : ?>
-                <div class="ui message">
-                    <p>Você não tem permissão para acessar está página.</p>
-                </div>
-            <?php endif; ?>
         </div>
-                <?=$v->insert('account/sidebar'); ?>
-    <?php else : ?>
-        <div class="ui message">
-            <p>Você precisa está logado para visualizar está página.</p>
-        </div>
-    <?php endif; ?>
-
+        <button class="btn btn-danger my-2" id="btn-editsector">Editar Setor</button>
+        <?php if($message): ?>
+            <?=$message; ?>
+        <?php endif; ?>
+    </div>
+    <?=$v->insert('account/sidebar'); ?>
 </div>
 </form>
 <?php $v->start('javascript'); ?>
 <script type="text/javascript">
-    submitOnForm('.js-update-sector-form', '.js-update-sector-btn');
+    onSubmit('form-editsector', 'btn-editsector');
 </script>
 <?php $v->end(); ?>
+
+<?php endif; ?>

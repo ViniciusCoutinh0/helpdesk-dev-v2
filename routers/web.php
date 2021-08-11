@@ -29,11 +29,17 @@ SimpleRouter::group(['prefix' => 'account'], function () {
 
 SimpleRouter::group(['prefix' => 'admin'], function () {
     SimpleRouter::get('/list/all/users', [AdminController::class, 'listUsers'])->name('admin.list.all.users');
+    SimpleRouter::get('/list/all/sectors', [AdminController::class, 'listSections'])->name('admin.list.all.sectors');
 
     SimpleRouter::get('/create/new/user', [AdminController::class, 'viewCreateUser'])->name('admin.view.create.user');
     SimpleRouter::post('/create/new/user/true', [AdminController::class, 'createUser'])->name('admin.post.create.user');
     SimpleRouter::get('/update/user/{user}', [AdminController::class, 'viewUpdateUser'])->name('admin.view.update.user');
     SimpleRouter::post('/update/user/{user}/true', [AdminController::class, 'updateUser'])->name('admin.post.update.user');
+
+    SimpleRouter::get('/create/new/sector', [AdminController::class, 'viewCreateSector'])->name('admin.view.create.sector');
+    SimpleRouter::post('/create/new/sector/true', [AdminController::class, 'createSector'])->name('admin.post.create.sector');
+    SimpleRouter::get('/update/sector/{sector}', [AdminController::class, 'viewUpdateSector'])->name('admin.view.update.sector');
+    SimpleRouter::post('/update/sector/{sector}/true', [AdminController::class, 'updateSector'])->name('admin.post.update.sector');
 
     SimpleRouter::get('/report/tickets', [AdminController::class, 'viewCreateReport'])->name('admin.view.report');
     SimpleRouter::post('/report/tickets/true', [AdminController::class, 'createReport'])->name('admin.create.report');
