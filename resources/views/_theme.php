@@ -26,8 +26,7 @@
             <ul id="menu" role="menu">
                 <li><a href="<?=url('ticket.store.view', ['user' => $user->Framework_User]); ?>">Novo Chamado</a></li>
                 <li><a href="<?=url('app.home'); ?>">Lista de Chamados</a></li>
-                <li><a href="<?=url('account.view', ['user' => $user->Framework_User]); ?>">Configurações
-                        da Conta</a></li>
+                <li><a href="<?=url('account.view', ['user' => $user->Framework_User]); ?>">Configurações da Conta</a></li>
                 <li><a href="<?=url('auth.signout'); ?>">Sair</a></li>
             </ul>
         </nav>
@@ -39,7 +38,7 @@
 </body>
 
 <script src="<?=asset('resources/javascript/leopard.min.js'); ?>"></script>
-<script src="https://kit.fontawesome.com/d6a7e4aac6.js" crossorigin="anonymous"></script>
+<!-- <script src="https://kit.fontawesome.com/d6a7e4aac6.js" crossorigin="anonymous"></script> -->
 <?php if (Session()->has('USER_ID')) : ?>
     <script type="text/javascript">
         execToggle();

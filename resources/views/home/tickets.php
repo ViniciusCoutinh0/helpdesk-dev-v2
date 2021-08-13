@@ -1,12 +1,12 @@
 <?php $v->layout('_theme'); ?>
 <div class="row">
     <div class="col-12">
-    <?php if($tickets): ?>
+    <?php if ($tickets) : ?>
     <div class="box">
         <div class="box-header">Lista de Chamados</div>
         <div class="box-content p-2">
             <ul class="list-group list-group-flush">
-                <?php foreach($tickets as $ticket): ?>
+                <?php foreach ($tickets as $ticket) : ?>
                     <li class="list-group-item d-flex flex-wrap flex-column">
                         <a class="text-reset text-decoration-none" href="<?=url('ticket.show', ['id' => $ticket->TICKET_CHAMADO]) ?>">
                             <div class="d-flex flex-wrap flex-column">
@@ -23,9 +23,9 @@
         </div>
     </div>
     </div>
-    <?php else: ?>
+    <?php else : ?>
         <div class="alert alert-danger" role="alert">
-            <i class="fas fa-exclamation-circle"></i> Nenhum chamado encontrado.
+            Nenhum chamado encontrado.
         </div>
     <?php endif; ?>
 </div>

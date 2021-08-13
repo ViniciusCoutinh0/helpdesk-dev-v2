@@ -11,7 +11,7 @@
                     <?php foreach ($open as $item) : ?>
                     <li class="list-group-item d-flex flex-column justify-content-between align-items-start">
                         <a class="text-reset text-decoration-none" href="<?=url('ticket.show', ['id' => $item->TICKET_CHAMADO]); ?>">
-                            <span class="badge bg-success"><i class="fas fa-solid fa-unlock"></i> Aberto</span>
+                            <span class="badge bg-success">Aberto</span>
                             #<?=$item->ID_ARTIA; ?> - <?=mb_convert_case(html_entity_decode($item->TITULO), MB_CASE_TITLE, 'UTF-8'); ?>
                         </a>
                         <span class="fs-7" style="color: #8c8d8f;">Departamento responsável:
@@ -22,8 +22,8 @@
                     <?php endforeach; ?>
                 </ul>
                 <?php else : ?>
-                <div class="alert alert-danger" role="alert">
-                    <i class="fas fa-exclamation-circle"></i> Nenhum chamado em aberto no momento..
+                <div class="alert alert-info" role="alert">
+                   Nenhum chamado em aberto no momento...
                 </div>
                 <?php endif; ?>
             </div>
@@ -41,7 +41,7 @@
                     <?php foreach ($closed as $item) : ?>
                     <li class="list-group-item d-flex flex-column justify-content-between align-items-start">
                         <a class="text-reset text-decoration-none" href="<?=url('ticket.show', ['id' => $item->TICKET_CHAMADO]); ?>">
-                            <span class="badge bg-danger"><i class="fas fa-solid fa-lock"></i> Fechado</span>
+                            <span class="badge bg-danger">Fechado</span>
                             #<?=$item->ID_ARTIA; ?> - <?=mb_convert_case(html_entity_decode($item->TITULO), MB_CASE_TITLE, 'UTF-8'); ?>
                         </a>
                         <span class="fs-7" style="color: #8c8d8f;">Departamento responsável:
@@ -52,8 +52,8 @@
                     <?php endforeach; ?>
                 </ul>
                 <?php else : ?>
-                <div class="alert alert-danger" role="alert">
-                    <i class="fas fa-exclamation-circle"></i> Nenhum chamado em aberto no momento..
+                <div class="alert alert-info" role="alert">
+                    Nenhum chamado em aberto no momento...
                 </div>
                 <?php endif; ?>
             </div>

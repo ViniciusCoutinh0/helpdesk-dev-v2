@@ -111,6 +111,7 @@ $table-striped-color: $custom-white-contrast;
     border: 1px solid $custom-white-border;
     border-radius: $custom-border-radius;
     -moz-border-radius: $custom-border-radius;
+    -webkit-border-radius: $custom-border-radius;
     display: block;
 }
 
@@ -119,6 +120,12 @@ $table-striped-color: $custom-white-contrast;
     background: $custom-white-contrast;
     border-bottom: 1px solid $custom-white-border-contrast;
     font-family: 'Circular Std Bold', sans-serif;
+    -webkit-border-top-left-radius: $custom-border-radius;
+    -webkit-border-top-right-radius: $custom-border-radius;
+    -moz-border-radius-topleft: $custom-border-radius;
+    -moz-border-radius-topright: $custom-border-radius;
+    border-top-left-radius: $custom-border-radius;
+    border-top-right-radius: $custom-border-radius;
     @extend .p-2;
 }
 
@@ -131,9 +138,11 @@ $table-striped-color: $custom-white-contrast;
 }
 
 .bg-login {
-    background: url('../images/emoji/welcome.png') no-repeat;
-    width: 500px;
-    height: 525px;
+    background: url('../images/welcome.png') no-repeat;
+    width: 472px;
+    height: 119px;
+    display: block;
+    border-radius: 5px;
 }
 
 .box-size-fluid {
@@ -173,6 +182,12 @@ $table-striped-color: $custom-white-contrast;
     border-radius: $custom-border-radius;
     border: 1px solid $border-color;
     z-index: 998;
+}
+
+.content-center {
+    width: 100%;
+    height: 100%;
+    margin: 4rem auto;
 }
 
 .ui.search>.results> :first-child {
@@ -465,6 +480,13 @@ $table-striped-color: $custom-white-contrast;
         width: 100%;
     }
 
+    .bg-login {
+        background: url('../images/welcome-mini.png') no-repeat;
+        width: 243px;
+        height: 61px;
+        display: block;
+        border-radius: 5px;
+    }
 }
 
 @include media-breakpoint-down(md) {

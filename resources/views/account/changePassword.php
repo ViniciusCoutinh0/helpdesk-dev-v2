@@ -1,6 +1,5 @@
 <?php $v->layout('_theme'); ?>
-<form action="<?=url('account.store.password', ['user' => $user->Framework_User]); ?>" method="post"
-    id="form-changepassword">
+<form action="<?=url('account.store.password', ['user' => $user->Framework_User]); ?>" method="post" id="form-changepassword">
     <div class="row">
         <input type="hidden" name="csrf_token" value="<?=csrf_token(); ?>">
         <!-- Content -->
@@ -9,10 +8,9 @@
                 <div class="box-header">
                     <h4>Alterar Senha</h4>
                 </div>
-
                 <div class="box-content p-2">
                     <div class="alert alert-info" role="alert">
-                        Não compartilhe sua senha com ninguém.
+                        Não compartilhe sua senha com ninguém!
                     </div>
                 </div>
                 <div class="box-content p-2 border-top">
@@ -35,14 +33,14 @@
                     </div>
                 </div>
             </div>
-            <button class="btn btn-danger mt-2 mb-2" id="btn-changepassword">Alterar Senha</button>
+            <button class="btn btn-danger my-2" id="btn-changepassword">Alterar Senha</button>
             <?php if ($message) : ?>
                 <?=$message; ?>
             <?php endif; ?>
         </div>
         <!-- Content -->
         <!-- Sidebar -->
-        <?=$v->insert('account/sidebar'); ?>
+            <?=$v->insert('account/sidebar'); ?>
         <!-- Sidebar -->
     </div>
 </form>

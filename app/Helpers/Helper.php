@@ -119,8 +119,10 @@ function clearCache(array $data): void
 function defaultUrl(): string
 {
     $explode = explode('/', env('CONFIG_APP_DEV_URL'));
+    $port = explode(':', $explode[2]);
+    $port = (isset($port[1]) ? $port[1] : '');
 
-    if (\request()->getHost() == $explode[2]) {
+    if (\request()->getHost() == $explode[2] . $port) {
         return $_ENV['CONFIG_APP_DEV_URL'];
     }
 

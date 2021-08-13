@@ -6,7 +6,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <span class="fs-7" style="color: #8c8d8f;">Histórico</span>
             <?php if ($ticket->ATUALIZACAO) : ?>
-                <span class="fs-7" style="color: #8c8d8f;">Última atualização: <?=date('d/m á\s H:i', strtotime($ticket->ATUALIZACAO));  ?></span>
+                <span class="fs-7" style="color: #8c8d8f;">Primeira Resposta em: <?=date('d/m á\s H:i', strtotime($ticket->ATUALIZACAO));  ?></span>
             <?php endif; ?>
         </div>
     </div>

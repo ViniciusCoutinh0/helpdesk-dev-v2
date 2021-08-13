@@ -1,37 +1,33 @@
-<form method="POST" action="<?=url('auth.sigin'); ?>" id="form-login">
-    <div class="d-flex flex-wrap justify-content-center justify-content-sm-between align-items-center">
-        <!-- welcome -->
-        <div class="bg-login"></div>
-        <!-- welcome -->
-        <!-- box.container -->
-        <div class="mb-2 box-size-fluid">
+<div class="content-center">
+    <div class="d-flex flex-wrap flex-column align-items-center justify-content-center">
+        <div class="bg-login my-4"></div>
+        <div class="box-size-fluid">
             <div class="box mb-2">
-                <div class="box-header">HelpDesk - Promofarma</div>
-                <div class="box-content p-3">
-                    <input type="hidden" name="csrf_token" value="<?= csrf_token(); ?>">
-                    <div class="form-group">
-                        <label for="username" class="form-label required">Username:</label>
-                        <input type="text" name="username" id="username" class="form-control form-control-lg" value="<?=($data['username'] ?? null); ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password" class="form-label required">Password:</label>
-                        <input type="password" name="password" id="password" class="form-control form-control-lg"
-                            autocomplete="off" required>
-                    </div>
-                    <div class="d-grid gap-2 mb-1">
-                        <button class="btn btn-lg btn-danger mt-3 js-form-btn" role="button" id="btn-login">Entrar</button>
-                    </div>
+                <div class="box-header text-center">
+                    <h4>HelpDesk - Promofarma.</h4>
+                </div>
+                <div class="box-content p-2">
+                    <form method="post" action="<?=url('auth.sigin'); ?>" id="form-login">
+                        <input type="hidden" name="csrf_token" value="<?=csrf_token();?>">
+                        <div class="form-group">
+                            <label for="username" class="form-label required">Username:</label>
+                            <input type="text" name="username" id="username" class="form-control form-control-lg"
+                                value="<?=($data['username'] ?? null); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="form-label required">Password:</label>
+                            <input type="password" name="password" id="password" class="form-control form-control-lg"
+                                autocomplete="off" required>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-lg btn-danger my-2" role="button" id="btn-login">Entrar</button>
+                        </div>
+                    </form>
                 </div>
             </div>
             <?php if ($message) : ?>
                 <?=$message; ?>
             <?php endif; ?>
         </div>
-        <!-- box.container -->
     </div>
-</form>
-<?php $v->start('javascript'); ?>
-<script type="text/javascript">
-    onSubmit('form-login', 'btn-login');
-</script>
-<?php $v->end(); ?>
+</div>

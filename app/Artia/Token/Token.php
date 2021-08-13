@@ -26,7 +26,7 @@ class Token
 
             $now = date_create();
             $last = date_create($file->date);
-            $now->modify('-40 minutes');
+            $now->modify('-45 minutes');
 
             if ($now > $last) {
                 $api = new Api();
