@@ -55,7 +55,7 @@
                     $clear = array_filter($explode); ?>
                     <div class="d-flex flex-wrap p-2">
                     <?php foreach ($clear as $item) : ?>
-                        <a href="<?=defaultUrl() . '/' . $item; ?>" class="fs-7 text-reset text-decoration-none" target="_blank" rel="noopener noreferrer" style="margin-right: .5rem;">
+                        <a href="<?=defaultUrl() . $item; ?>" class="fs-7 text-reset text-decoration-none" target="_blank" rel="noopener noreferrer" style="margin-right: .5rem;">
                         <i class="fas fa-solid fa-file"></i> Anexo
                         </a>
                     <?php endforeach; ?>
@@ -71,7 +71,7 @@
         <?php if ($attachments) : ?>
             <?php foreach ($attachments as $attachment) : ?>
                 <div class="d-flex flex-column flex-wrap p-2 border-bottom">
-                    <a class="text-reset text-decoration-none" href="<?=defaultUrl() . '/' . $attachment->ENDERECO;?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-solid fa-file"></i> Anexo</a>
+                    <a class="text-reset text-decoration-none" href="<?=defaultUrl() . $attachment->ENDERECO;?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-solid fa-file"></i> Anexo</a>
                     <span class="fs-7" style="color: #8c8d8f;">
                         Enviado Por: <?=mb_convert_case($attachment->USUARIO, MB_CASE_TITLE, 'UTF-8'); ?> ás <?=date('d/m á\s H:i', strtotime($attachment->ENVIADO)); ?>
                     </span>

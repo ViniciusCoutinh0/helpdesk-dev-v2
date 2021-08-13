@@ -29,8 +29,8 @@ class AdminController extends User
 
         $user = (new User())->getUserById((int) Session()->USER_ID);
         $sector = (new Sector())->getSectorByUser($user);
-        $this->message = new Message();
 
+        $this->message = new Message();
         $this->view->addData(compact('user', 'sector'));
     }
 
@@ -248,22 +248,22 @@ class AdminController extends User
     }
 
     public function createSector(): void
-    { 
+    {
         $required['rule_read']   = 'N';
         $required['rule_create'] = 'N';
         $required['rule_update'] = 'N';
         $required['rule_delete'] = 'N';
 
-        foreach($required as $key => $value) {
-            if(input()->exists($key)) {
+        foreach ($required as $key => $value) {
+            if (input()->exists($key)) {
                 $required[$key] = (input()->post($key)->getValue() === 'on' ? 'S' : 'N');
             }
         }
 
         $required['name'] = mb_convert_case(input()->post('name')->getValue(), MB_CASE_TITLE, 'UTF-8');
         $required = array_map('clearHtml', $required);
-        
-        if(in_array('', $required)) {
+
+        if (in_array('', $required)) {
             $this->message->error('Existem campos em branco, por favor preencha todos os campos');
             $this->viewCreateSector();
             return;
@@ -271,7 +271,7 @@ class AdminController extends User
 
         $sector = (new Sector())->find()->where(['Name' => $required['name']])->count();
 
-        if($sector) {
+        if ($sector) {
             $this->message->error('Nome de setor já cadastrado');
             $this->viewCreateSector();
             return;
@@ -279,7 +279,7 @@ class AdminController extends User
 
         $create = (new Sector())->store($required);
 
-        if(!$create) {
+        if (!$create) {
             $this->message->error('Não foi possivel criar um novo setor');
             $this->viewCreateSector();
             return;
@@ -294,7 +294,7 @@ class AdminController extends User
         $currentSector = (new Sector())->findBy($id)->first();
         $rule = (new Rules())->getRulesBySector($currentSector);
 
-        if(!$currentSector) {
+        if (!$currentSector) {
             redirect(url('app.home'));
             return;
         }
@@ -308,8 +308,8 @@ class AdminController extends User
         $required['id'] = $id;
         $required['name'] = mb_convert_case(input()->post('name')->getValue(), MB_CASE_TITLE, 'UTF-8');
         $checkbox = $this->checkbox(['rule_read', 'rule_create', 'rule_update', 'rule_delete']);
-            
-        if(empty($required)) {
+
+        if (empty($required)) {
             $this->message->error('Existem campos em branco, por favor preencha todos os campos');
             $this->viewUpdateSector($id);
             return;
@@ -317,27 +317,26 @@ class AdminController extends User
 
         $update = (new Sector())->updateByParam(array_merge($checkbox, $required));
 
-        if(!$update) {
+        if (!$update) {
             $this->message->error('Existem campos em branco, por favor preencha todos os campos');
             $this->viewUpdateSector($id);
             return;
-        }   
+        }
 
         $this->message->success('Setor alterado com sucesso');
         $this->viewUpdateSector($id);
-
     }
 
     private function checkbox(array $data): array
     {
         $modified = [];
-        foreach($data as $key) {
+        foreach ($data as $key) {
             if (input()->exists($key)) {
                 $modified[$key] = (input()->post($key)->getValue() === 'on' ? 'S' : 'N');
             } else {
                 $modified[$key] = 'N';
             }
         }
-        return $modified;   
+        return $modified;
     }
 }

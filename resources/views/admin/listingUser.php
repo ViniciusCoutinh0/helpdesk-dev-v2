@@ -19,7 +19,7 @@
                             <?php if ($listAll) : ?>
                                 <?php foreach ($listAll as $item) : ?>
                             <tr>
-                                <td><?=mb_strtolower($item->Username); ?></td>
+                                <td><?= mb_strtolower($item->Username); ?></td>
                                 <td><?=$item->Sector; ?></td>
                                 <td>
                                     <a href="<?=url('admin.view.update.user', ['user' => $item->Framework_User]); ?>">

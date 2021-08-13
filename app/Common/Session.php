@@ -7,7 +7,7 @@ class Session
     public function __construct()
     {
         if (!session_id()) {
-            session_save_path(__DIR__ . pathOs(env('CONFIG_PATH_SESSION')));
+            session_save_path(__DIR__ . pathOs(env('CONFIG_PATH_SESSION')) . '/');
             session_start();
         }
     }

@@ -43,12 +43,14 @@ class HttpController
 
         $list = [];
         foreach ($items as $item) {
-            $list['items'][] = [
-                'departament' => mb_convert_case($item->DEPARTAMENTO_NOME, MB_CASE_TITLE, 'UTF-8'),
-                'category_name' => mb_convert_case($item->NOME, MB_CASE_TITLE, 'UTF-8'),
-                'category_description' => mb_convert_case($item->DESCRICAO, MB_CASE_TITLE, 'UTF-8'),
-                'sub_category' => (int) $item->TICKET_SUB_CATEGORIA
-            ];
+            if ($item->ATIVO == 'S') {
+                $list['items'][] = [
+                    'departament' => mb_convert_case($item->DEPARTAMENTO_NOME, MB_CASE_TITLE, 'UTF-8'),
+                    'category_name' => mb_convert_case($item->NOME, MB_CASE_TITLE, 'UTF-8'),
+                    'category_description' => mb_convert_case($item->DESCRICAO, MB_CASE_TITLE, 'UTF-8'),
+                    'sub_category' => (int) $item->TICKET_SUB_CATEGORIA
+                ];
+            }
         }
 
         $list['result'] = true;

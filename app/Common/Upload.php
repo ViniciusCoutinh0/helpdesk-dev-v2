@@ -21,11 +21,11 @@ class Upload
                 $name = uniqid() . '.' . $file->getExtension();
                 $data['files'][] = [
                     'file_name' => $name,
-                    'file_path' => pathOs(env('CONFIG_PATH_UPLOAD')) . $name,
+                    'file_path' => '/storage/upload/' . $name,
                     'file_mime' => $file->getMime()
                 ];
 
-                $file->move(__DIR__ . pathOs('/../..' . env('CONFIG_PATH_UPLOAD')) . $name);
+                $file->move(__DIR__ . pathOs(env('CONFIG_PATH_UPLOAD')) . '/' . $name);
             }
         }
         return $data;

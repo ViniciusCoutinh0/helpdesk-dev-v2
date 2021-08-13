@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Common\Upload;
 use App\Common\View;
+use App\Services\Handler;
 use App\Models\Entity\User;
 use App\Models\Ticket\Ticket;
 use App\Models\Sector\Sector;
 use App\Models\Ticket\Answer;
 use App\Models\Ticket\SubCategory;
 use App\Models\Ticket\Attachment;
+use App\Models\Ticket\Category;
 
 class TicketController extends Ticket
 {
@@ -32,6 +34,14 @@ class TicketController extends Ticket
     {
         $user = (new User())->getUserById((int) Session()->USER_ID);
         $ticket = (new Ticket())->getTicketById($id);
+
+        if (!$ticket) {
+            redirect(url('app.home'));
+            return;
+        }
+
+        Handler::listingCommentsNotViewed($ticket->TICKET_CHAMADO);
+
         $commits = (new Answer())->getTicketResponses($ticket);
         $attachments = (new Attachment())->getAttachmentById($ticket);
 
@@ -88,20 +98,31 @@ class TicketController extends Ticket
             return;
         }
 
+        $subcategory = (new SubCategory())->findBy($subcategoryId)->first();
+        $category = (new Category())->joinDepartament((int) $subcategory->TICKET_CATEGORIA);
+
         $user = (new User())->getUserById((int) $required['user_id']);
 
         if (!$user) {
-            redirect($_ENV['CONFIG_APP_PATH']);
+            redirect(url('app.home'));
             return;
         }
 
         $data = [
             'username' => $user->Username,
             'computer' => 'Não informado pelo Cliente',
-            'on_duty' => 'N',
-            'subcategory' => (int) $subcategoryId,
             'employee_name' => 'Não identificado(a)',
             'employee_number' => 0,
+            'description' => mb_convert_case($subcategory->DESCRICAO, MB_CASE_TITLE, 'UTF-8'),
+            'departament' => mb_convert_case($category->NOME, MB_CASE_TITLE, 'UTF-8'),
+            'category' => mb_convert_case(trim($category->CATEGORIA_NOME), MB_CASE_TITLE, 'UTF-8'),
+            'subcategory' => mb_convert_case(trim($subcategory->NOME), MB_CASE_TITLE, 'UTF-8'),
+            'folder_id' => (int) $category->FOLDER_ID,
+            'responsible_id' => (int) $subcategory->USUARIO,
+            'responsible' => (int) $subcategory->USUARIO_ARTIA,
+            'estimated_effort' => floatval($subcategory->ESFORCO),
+            'on_duty' => 'N',
+            'estimated_end' => date('Y-m-d H:i', strtotime('+' . (int) $subcategory->PRAZO_ESTIMADO . ' day'))
         ];
 
         if (input()->exists('computer')) {
@@ -129,7 +150,7 @@ class TicketController extends Ticket
                 }
 
                 $data['fields'][] = [
-                    'FIELD_NAME' => mb_convert_case($field->DESCRICAO_CAMPO, MB_CASE_TITLE, 'UTF-8'),
+                    'FIELD_NAME' => mb_convert_case(trim($field->DESCRICAO_CAMPO), MB_CASE_TITLE, 'UTF-8'),
                     'FIELD_VALUE' => clearHtml($value)
                 ];
             }
@@ -143,16 +164,24 @@ class TicketController extends Ticket
             return;
         }
 
-        $merge = array_merge($required, $data);
+        $data = array_merge($required, $data);
 
-        $create = $this->createTicket($merge, $files);
-        if (!$create) {
+        $id = $this->createTicket($data, $files);
+
+        $activity = Handler::createActivity($id, $data, $files);
+
+        if (!$id) {
             $this->message = 'Falha ao enviar as informações do chamado por favor tente novamente';
             $this->viewStore();
             return;
         }
 
-        redirect(url('ticket.show', ['id' => $create]));
+        $update = (new Ticket())->findBy($id)->first();
+        $update->TICKET_CHAMADO = $id;
+        $update->ID_ARTIA = $activity;
+        $update->save();
+
+        redirect(url('ticket.show', ['id' => $id]));
     }
 
     public function commitStore(int $id): void
@@ -188,6 +217,7 @@ class TicketController extends Ticket
             return;
         }
 
+        Handler::createComment($ticket->ID_ARTIA, $message, $files);
         redirect(url('ticket.show', ['id' => $id]));
     }
 }

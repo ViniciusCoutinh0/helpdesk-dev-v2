@@ -3,116 +3,92 @@
 namespace App\Artia;
 
 use App\Artia\Request\Request;
+use App\Artia\Token\Token;
 
 class Api extends Request
 {
-    /** @var $required \stdClass */
-    private $required;
-    /** @var $graphQL string */
-    private $graphQL;
-
-    private $response;
+    /**
+     * @var string
+    */
+    protected $url = 'app.artia.com/graphql';
 
     /**
-     * Retorna a reposta da API.
-     *
-     * @return null|object
+     * @var string
     */
-    public function getResponse(): ?object
+    protected $method;
+
+    /**
+     * @var array
+    */
+    protected $headers;
+
+    /**
+     * @var string
+    */
+    protected $graphQl;
+
+    /**
+     * @var stdClass
+    */
+    protected $data;
+
+    public function __construct(string $method = 'POST')
     {
-        return $this->response;
+        $this->method = $method;
+        $this->headers = [
+            'Content-Type: application/json',
+            'OrganizationId: ' . env('CONFIG_API_ORGANIZATION_ID'),
+            'Authorization: ' . Token::hash()
+        ];
+    }
+
+    public function __get($name)
+    {
+        return ($this->data->$name ?? null);
     }
 
     /**
-     * Captura as informações do array e transoforma em um @object.
-     *
      * @param array $fields
      * @return Api
     */
-    public function required(array $fields): Api
+    public function requireds(array $fields): Api
     {
-        $this->required = new \stdClass();
+        $this->data = new \stdClass();
+
         foreach ($fields as $key => $value) {
-            $this->required->$key = $value;
+            $this->data->$key = $value;
         }
+
         return $this;
     }
 
     /**
-     * Verifica o @object 'api' e chama a função correspondente.
-     *
-     * @return Api
-    */
-    public function build(): Api
-    {
-        if (!empty($this->required)) {
-            switch ($this->required->callback) {
-                case 'createActivity':
-                    $this->createActivity();
-                    break;
-                case 'changeCustomStatusActivity':
-                    $this->changeCustomStatusActivity();
-                    break;
-                case 'showActivity':
-                    $this->showActivity();
-                    break;
-                case 'listingActivities':
-                    $this->listingActivities();
-                    break;
-                case 'createComment':
-                    $this->createComment();
-                    break;
-                case 'listingCommentsNotViewed':
-                    $this->listingCommentsNotViewed();
-                    break;
-                case 'authenticationByClient':
-                    $this->authenticationByClient();
-                    break;
-            }
-        }
-        return $this;
-    }
-
-    public function send()
-    {
-        try {
-            $this->response = $this->curl($this->graphQL);
-        } catch (\Exception $exception) {
-            echo $exception->getMessage();
-        }
-    }
-
-    /**
-     * Cria atividade.
-     *
      * @return void
     */
-    private function createActivity(): void
+    public function createActivity(): void
     {
-        $this->graphQL = \QueryBuilder\Builder::createMutationBuilder()
+        $this->graphQl = \QueryBuilder\Builder::createMutationBuilder()
         ->name('createActivity')
         ->arguments([
-            'title' => $this->required->title,
-            'accountId' => intval($_ENV['ARTIA_ACCOUNT_ID']),
-            'folderId' => $this->required->folderId,
-            'description' => $this->required->description,
-            'responsibleId' => $this->required->responsibleId,
-            'estimatedStart' => dateFormat()->format('Y-m-d'),
-            'estimatedEnd' => $this->required->estimatedEnd,
-            'actualStart' => dateFormat()->format('Y-m-d'),
+            'title' => $this->title,
+            'accountId' => $this->accountId,
+            'folderId' => $this->folderId,
+            'description' => $this->description,
+            'responsibleId' => $this->responsibleId,
+            'estimatedStart' => date('Y-m-d'),
+            'estimatedEnd' => $this->estimatedEnd,
+            'actualStart' => date('Y-m-d'),
             'actualEnd' => '',
-            'estimatedEffort' => floatval($this->required->estimatedEffort),
-            'categoryText' => $this->required->categoryText,
+            'estimatedEffort' => floatval($this->estimatedEffort),
+            'categoryText' => $this->categoryText,
             'priority' => 100,
-            'timeEstimatedStart' => dateFormat()->format('H:i'),
+            'timeEstimatedStart' => date('H:i'),
             'timeEstimatedEnd' => '',
             'timeActualEnd' => '',
             'completedPercent' => 00.00
         ])
         ->body([
-            'id', 'uid', 'communityId', 'customStatus ' => [
-                'id', 'statusName', 'status'
-            ],
+            'id', 'uid', 'communityId', 'customStatus ' => ['id', 'statusName', 'status'],
             'status', 'title', 'description',
             'groupCategories', 'priority', 'estimatedStart',
             'timeEstimatedStart', 'estimatedEnd', 'timeEstimatedEnd',
@@ -124,44 +100,39 @@ class Api extends Request
             'financePredicted', 'financeAccomplished', 'isCriticalPath', 'customColumns',
             'tendencyEnd', 'tfsKey', 'verifyConflicts', 'typeColor', 'schedulePerformanceIndex',
             'distributeAllocationAutomatically', 'createdAt', 'updatedAt', 'deletedAt',
-            'createdById', 'createdForUser', 'responsible' => [
-                'id', 'name', 'email',
-            ], 'parent' => [
-                'id', 'name'
-            ]
-        ])
-        ->build();
-    }
-
-    private function listingActivities(): void
-    {
-        $this->graphQL = \QueryBuilder\Builder::createQueryBuilder()
-        ->name('listingActivities')
-        ->arguments([
-            'accountId' => (int) $_ENV['ARTIA_ACCOUNT_ID'],
-            'folderId' => (int) $this->required->folderId
-        ])
-        ->body([
-            'id',
+            'createdById', 'createdForUser', 'responsible' => ['id', 'name', 'email'],
+            'parent' => ['id', 'name']
         ])
         ->build();
     }
 
     /**
-     * Altera o status de uma atividade.
-     *
+     * @return Api
+    */
+    public function listingActivities(): Api
+    {
+        $this->graphQl = \QueryBuilder\Builder::createQueryBuilder()
+        ->name('listingActivities')
+        ->arguments(['accountId' => $this->accountId, 'folderId' => $this->folderId])
+        ->body(['id'])
+        ->build();
+
+        return $this;
+    }
+
+    /**
      * @return void
     */
-    private function changeCustomStatusActivity(): void
+    public function changeCustomStatusActivity(): void
     {
-        $this->graphQL = \QueryBuilder\Builder::createMutationBuilder()
+        $this->graphQl = \QueryBuilder\Builder::createMutationBuilder()
         ->name('changeCustomStatusActivity')
         ->arguments([
-            'id' => $this->required->id,
-            'accountId' => intval($_ENV['ARTIA_ACCOUNT_ID']),
-            'folderId' => $this->required->folderId,
-            'customStatusId' => $this->required->customStatusId,
-            'status' => $this->required->status
+            'id' => $this->id,
+            'accountId' => $this->accountId,
+            'folderId' => $this->folderId,
+            'customStatusId' => $this->customStatusId,
+            'status' => $this->status
         ])
         ->body([
             'id', 'title', 'customStatus' => [
@@ -172,18 +143,16 @@ class Api extends Request
     }
 
     /**
-     * Lista as informações da atividade.
-     *
      * @return void
     */
-    private function showActivity(): void
+    public function showActivity(): void
     {
-        $this->graphQL = \QueryBuilder\Builder::createQueryBuilder()
+        $this->graphQl = \QueryBuilder\Builder::createQueryBuilder()
         ->name('showActivity')
         ->arguments([
-            'id' => $this->required->id,
-            'accountId' => intval($_ENV['ARTIA_ACCOUNT_ID']),
-            'folderId' => $this->required->folderId
+            'id' => $this->id,
+            'accountId' => $this->accountId,
+            'folderId' => $this->folderId
         ])
         ->body([
             'id', 'uid', 'communityId', 'customStatus' => [
@@ -194,21 +163,19 @@ class Api extends Request
     }
 
     /**
-     * Cria um comentário na atividade.
-     *
      * @return void
     */
-    private function createComment(): void
+    public function createComment(): void
     {
-        $this->graphQL = \QueryBuilder\Builder::createMutationBuilder()
+        $this->graphQl = \QueryBuilder\Builder::createMutationBuilder()
         ->name('createComment')
         ->arguments([
-            'id' => $this->required->id,
-            'object' => $this->required->object,
-            'content' => $this->required->content,
-            'accountId' => intval($_ENV['ARTIA_ACCOUNT_ID']),
-            'createBy' => $this->required->createBy,
-            'users' => $this->required->users
+            'id' => $this->id,
+            'object' => $this->object,
+            'content' => $this->content,
+            'accountId' => $this->accountId,
+            //'createBy' => $this->createBy,
+            //'users' => $this->users
         ])
         ->body([
             'id', 'content', 'createdAt', 'author' => [
@@ -223,19 +190,17 @@ class Api extends Request
     }
 
     /**
-     * Lista os comentários da atividade.
-     *
      * @return void
     */
-    private function listingCommentsNotViewed(): void
+    public function listingCommentsNotViewed(): void
     {
-        $this->graphQL = \QueryBuilder\Builder::createQueryBuilder()
+        $this->graphQl = \QueryBuilder\Builder::createQueryBuilder()
         ->name('listingCommentsNotViewed')
         ->arguments([
-            'ids' => $this->required->ids,
-            'type' => $this->required->type,
-            'viewed' => $this->required->viewed,
-            'accountId' => (int) $_ENV['ARTIA_ACCOUNT_ID']
+            'ids' => $this->ids,
+            'type' => $this->type,
+            'viewed' => $this->viewed,
+            'accountId' => $this->accountId
         ])
         ->body([
             'id', 'content', 'createdAt', 'createdByApi', 'author' => [
@@ -249,20 +214,72 @@ class Api extends Request
         ->build();
     }
 
-    /**
-     * Gera um token de autenticação.
-     *
-     * @return void
-    */
-    private function authenticationByClient(): void
+    public function updateActivity(): Api
     {
-        $this->graphQL = \QueryBuilder\Builder::createMutationBuilder()
+        $this->graphQl = \QueryBuilder\Builder::createMutationBuilder()
+        ->name('updateActivity')
+        ->arguments([
+            'id' => $this->id,
+            'title' => $this->title,
+            'accountId' => $this->accountId,
+            'folderId' => $this->folderId
+        ])
+        ->body([
+            'id'
+        ])
+        ->build();
+
+        return $this;
+    }
+
+    public function listingTimeEntries()
+    {
+        $this->graphQl = \QueryBuilder\Builder::createQueryBuilder()
+        ->name('listingTimeEntries')
+        ->arguments([
+            'accountId' => $this->accountId,
+            'folderId' => $this->folder_id,
+            'activityId' => $this->activityId,
+        ])
+        ->body([
+            'id', 'folderId', 'accountId', 'activityId', 'dateAt',
+            'duration', 'startTime', 'endTime', 'observation', 'timeEntryStatusId'
+        ])
+        ->build();
+
+        return $this;
+    }
+
+    /**
+     * @return Api
+    */
+    public function authenticationByClient(): Api
+    {
+        $this->graphQl = \QueryBuilder\Builder::createMutationBuilder()
         ->name('authenticationByClient')
         ->arguments([
-            'clientId' => $_ENV['ARTIA_CLIENT_ID'],
-            'secret' => $_ENV['ARTIA_SECRET']
+            'clientId' => $this->clientId,
+            'secret' => $this->secret
         ])
         ->body(['token'])
         ->build();
+
+        return $this;
+    }
+
+    /**
+     * @param string $method
+     * @param array $headers
+     * @return Api
+    */
+    public function response(): object
+    {
+        $response = json_decode($this->curl());
+
+        // if (isset($response->errors[0])) {
+        //     throw new RequestException($response->errors[0]->message);
+        // }
+
+        return $response;
     }
 }

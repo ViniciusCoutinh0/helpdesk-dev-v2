@@ -10,12 +10,10 @@ class View
 
     public function __construct()
     {
-        $this->view = Engine::create(__DIR__ . '/../../resources/views', 'php');
+        $this->view = Engine::create(__DIR__ . env('CONFIG_PATH_VIEW'), 'php');
     }
 
     /**
-     * Adiciona dados na página rederizada.
-     *
      * @param array $data
      * @return array
      */
@@ -25,19 +23,16 @@ class View
     }
 
     /**
-     * Renderiza a view.
-     * @param $template [View name]
+     * @param $view
      * @param $data [Columns param]
      * @return string
     */
-    public function render(string $tplname, array $data = []): string
+    public function render(string $view, array $data = []): string
     {
-        return $this->view->render($tplname, $data);
+        return $this->view->render($view, $data);
     }
 
     /**
-     * Retorna a instancia do Compomente
-     *
      * @return Engine
      */
     public function engine(): Engine

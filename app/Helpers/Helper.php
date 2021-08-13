@@ -118,9 +118,12 @@ function clearCache(array $data): void
  */
 function defaultUrl(): string
 {
-    if (\request()->getHost() == 'localhost') {
+    $explode = explode('/', env('CONFIG_APP_DEV_URL'));
+
+    if (\request()->getHost() == $explode[2]) {
         return $_ENV['CONFIG_APP_DEV_URL'];
     }
+
     return $_ENV['CONFIG_APP_PRO_URL'];
 }
 

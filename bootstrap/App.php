@@ -16,9 +16,15 @@ use Dotenv\Exception\InvalidFileException;
 try {
     $env = \Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
     $env->load();
+    $env->required([
+        'CONFIG_DB_HOST',
+        'CONFIG_DB_USER',
+        'CONFIG_DB_PASS',
+        'CONFIG_DB_DATA'
+    ]);
 
     if (!isset($_SERVER['REQUEST_METHOD'])) {
-        Token::revalited();
+        Token::regenerate();
         exit();
     }
 
@@ -42,10 +48,10 @@ try {
     SimpleRouter::csrfVerifier(new \App\Http\Middleware\CsrfVerifier());
     SimpleRouter::setDefaultNamespace('\App\Http\Controllers');
 
-
     require __DIR__ . '/../routers/web.php';
 
-    Token::loadCache();
+    Token::loadCacheFile();
+
     SimpleRouter::start();
 } catch (InvalidPathException | InvalidFileException | NotFoundHttpException | TokenMismatchException $exception) {
     echo $exception->getMessage();

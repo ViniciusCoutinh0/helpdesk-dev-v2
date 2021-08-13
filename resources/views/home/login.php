@@ -23,10 +23,8 @@
                     </div>
                 </div>
             </div>
-            <?php if (isset($message)) : ?>
-            <div class="alert alert-danger" role="alert">
-                <i class="fas fa-exclamation-circle"></i> <?=$message; ?>
-            </div>
+            <?php if ($message) : ?>
+                <?=$message; ?>
             <?php endif; ?>
         </div>
         <!-- box.container -->

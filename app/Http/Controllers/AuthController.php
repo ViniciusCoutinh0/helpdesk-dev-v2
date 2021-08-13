@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Common\Message;
 use App\Common\View;
 use App\Models\Entity\User;
 
@@ -9,50 +10,49 @@ class AuthController extends User
 {
     /** @var \App\Common\View */
     private $view;
+    private $message;
 
     public function __construct()
     {
         $this->view = new View();
+        $this->message = new Message();
     }
 
-    public function viewLogin(array $data, string $message = null): void
+    public function viewLogin(): void
     {
         echo $this->view->render('home', [
-            'data' => $data,
-            'message' => $message
+            'message' => $this->message
         ]);
     }
 
     public function signIn(): void
     {
-        $required = [
-            'username' => htmlentities(strip_tags(input()->find('username')->getValue()), ENT_QUOTES, 'UTF-8'),
-            'password' => htmlentities(strip_tags(input()->find('password')->getValue()), ENT_QUOTES, 'UTF-8')
-        ];
+        $required = input()->all();
+        $required = array_map('clearHtml', $required);
 
         if (in_array('', $required)) {
-            $message = 'Existem campos em branco por favor preencha todos os campos.';
-            $this->viewLogin($required, $message);
+            $this->message->error('Existem campos em branco por favor preencha todos os campos');
+            $this->viewLogin();
             return;
         }
 
         $user = $this->getUserByUsername(trim($required['username']));
 
         if (!$user) {
-            $message = 'Usuário/Senha inválido ou não cadastrado.';
-            $this->viewLogin($required, $message);
+            $this->message->error('Usuário/Senha inválido ou não cadastrado');
+            $this->viewLogin();
             return;
         }
 
         if (!password_verify(trim($required['password']), $user->Password)) {
-            $message = 'Usuário/Senha inválido ou não cadastrado.';
-            $this->viewLogin($required, $message);
+            $this->message->error('Usuário/Senha inválido ou não cadastrado');
+            $this->viewLogin();
             return;
         }
 
         if ($user->State === 'N') {
-            $message = 'Usuário inativo por favor entre contato com Suporte T.i.';
-            $this->viewLogin($required, $message);
+            $this->message->error('Usuário inativo por favor entre contato com Suporte T.i');
+            $this->viewLogin();
             return;
         }
 

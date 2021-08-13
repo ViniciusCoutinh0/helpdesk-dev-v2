@@ -6,7 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?=$_ENV['CONFIG_APP_NAME']; ?></title>
-    <link rel="stylesheet" href="<?=asset('resources/css/app.css'); ?>">
+    <link rel="stylesheet" href="<?=asset('resources/css/font.min.css'); ?>">
+    <link rel="stylesheet" href="<?=asset('resources/css/app.min.css'); ?>">
     <link rel="shortcut icon" href="<?=asset('favicon.ico'); ?>" />
 </head>
 
@@ -37,11 +38,13 @@
     </main>
 </body>
 
-<script src="<?=asset('resources/javascript/leopard.js'); ?>"></script>
+<script src="<?=asset('resources/javascript/leopard.min.js'); ?>"></script>
 <script src="https://kit.fontawesome.com/d6a7e4aac6.js" crossorigin="anonymous"></script>
-<script type="text/javascript">
-    execToggle();
-</script>
+<?php if (Session()->has('USER_ID')) : ?>
+    <script type="text/javascript">
+        execToggle();
+    </script>
+<?php endif; ?>
+</html>
 <?=$v->section('javascript'); ?>
-
 </html>

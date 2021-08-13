@@ -3,84 +3,79 @@
 namespace App\Artia\Token;
 
 use App\Artia\Api;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class Token
 {
-    private static $token;
-    private static $cache;
-
     /**
-     * Retorna o Endereço do arquivo Token.json
-     *
-     * @param string $cache [path]
-     * @return string
+     * @var string
     */
-    public static function cache(string $cache = __DIR__ . '/../../../storage/token/token.json'): string
-    {
-        return self::$cache = $cache;
-    }
+    private static $hash;
 
     /**
-     * Retorna o Token
-     *
-     * @return null|string
-    */
-    public static function getToken(): ?string
-    {
-        return self::$token;
-    }
-
-    /**
-     * Revalida o token de Acesso.
-     *
      * @return void
     */
-    public static function revalited(): void
+    public static function regenerate(): void
     {
-        if (Token::loadCache()) {
-            $token = Token::loadCache();
+        if (Token::loadCacheFile()) {
+            $logger = new Logger('token');
+            $logger->pushHandler(new StreamHandler(__DIR__ . env('CONFIG_PATH_LOG') . '/token.txt', Logger::DEBUG));
+
+            $file = Token::loadCacheFile();
+
             $now = date_create();
-            $lasted = date_create($token->date);
-            $now->modify('-45 minutes');
+            $last = date_create($file->date);
+            $now->modify('-40 minutes');
 
-            if ($now > $lasted) {
+            if ($now > $last) {
                 $api = new Api();
-                $api->required([
-                    'callback' => 'authenticationByClient'
-                ])
-                ->build()
-                ->send();
+                $api->requireds([
+                        'clientId' => env('CONFIG_API_CLIENT_ID'),
+                        'secret' => env('CONFIG_API_SECRET')
+                ])->authenticationByClient();
 
-                $response = $api->getResponse();
+                $response = $api->response();
 
-                $fp = fopen(Token::cache(), 'w+');
-                fwrite($fp, toJson([
+                if (isset($response->errors[0])) {
+                    $logger->warning($response->errors[0]->message);
+                }
+
+                $fopen = fopen(__DIR__ . env('CONFIG_API_TOKEN_CACHE'), 'w+');
+                fwrite($fopen, json_encode([
                     'cache' => 'token',
                     'token' => $response->data->authenticationByClient->token,
                     'type'  => 'authenticationByClient',
-                    'date'  => dateFormat()->format('Y-m-d H:i:s')
+                    'date'  => date('Y-m-d H:i:s')
                 ]));
-                fclose($fp);
+                fclose($fopen);
             }
         }
     }
 
     /**
-     * Carrega o arquivo Token.json.
-     *
-     * @return null|object
+     * @return null|string
     */
-    public static function loadCache(): ?object
+    public static function hash(): ?string
     {
-        $file = Token::cache();
+        return self::$hash;
+    }
+
+    /**
+     * @return object
+    */
+    public static function loadCacheFile(): object
+    {
+        $file = __DIR__ . env('CONFIG_API_TOKEN_CACHE');
+
         if (!file_exists($file)) {
             return new class {
-                public $date = '2020-05-24 22:00:00';
+                public $date = '2021-01-01 00:00:00';
             };
         }
 
         $content = json_decode(file_get_contents($file));
-        self::$token = $content->token;
+        self::$hash = $content->token;
 
         return $content;
     }

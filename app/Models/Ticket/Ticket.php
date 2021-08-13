@@ -70,13 +70,7 @@ class Ticket extends Layer
     */
     public function createTicket(array $data, array $files = []): ?int
     {
-        $subcategory = (new SubCategory())->findBy((int) $data['subcategory'])->first();
-        $category = (new Category())->joinDepartament((int) $subcategory->TICKET_CATEGORIA);
-
-        $encode = [
-            'MESSAGE' => html_entity_decode($data['message']),
-            'DESCRIPTION' => mb_convert_case($subcategory->DESCRICAO, MB_CASE_TITLE, 'UTF-8')
-        ];
+        $encode = ['MESSAGE' => html_entity_decode($data['message']), 'DESCRIPTION' => html_entity_decode($data['description'])];
 
         if (isset($data['fields'])) {
             $encode['FIELDS'] = $data['fields'];
@@ -90,16 +84,16 @@ class Ticket extends Layer
         $column->NUMERO_BALCONISTA = $data['employee_number'];
         $column->NOME_BALCONISTA = $data['employee_name'];
         $column->COMPUTADOR = $data['computer'];
-        $column->DEPARTAMENTO = mb_convert_case($category->NOME, MB_CASE_TITLE, 'UTF-8');
-        $column->CATEGORIA =  mb_convert_case(trim($category->CATEGORIA_NOME), MB_CASE_TITLE, 'UTF-8');
-        $column->SUB_CATEGORIA = mb_convert_case(trim($subcategory->NOME), MB_CASE_TITLE, 'UTF-8');
+        $column->DEPARTAMENTO = $data['departament'];
+        $column->CATEGORIA = $data['category'];
+        $column->SUB_CATEGORIA = $data['subcategory'];
         $column->ID_ARTIA = 0; // UPDATE AFTER
-        $column->ID_FOLDER = (int) $category->FOLDER_ID;
-        $column->RESPONSAVEL_ARTIA = (int) $subcategory->USUARIO;
-        $column->ESFORCO_ARTIA = floatval($subcategory->ESFORCO);
+        $column->ID_FOLDER = $data['folder_id'];
+        $column->RESPONSAVEL_ARTIA = $data['responsible_id'];
+        $column->ESFORCO_ARTIA = $data['estimated_effort'];
         $column->PLANTAO = $data['on_duty'];
         $column->CHAMADO_RAPIDO = 'D';
-        $column->PRAZO_ARTIA = date('Y-m-d H:i:s', strtotime('+' . (int) $subcategory->PRAZO_ESTIMADO . ' day'));
+        $column->PRAZO_ARTIA = $data['estimated_end'];
 
         if ($column->save()) {
             $id = Db::getInstance()->lastInsertId();

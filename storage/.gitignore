@@ -1,5 +1,7 @@
 sessions/*
 upload/*
+logs/*
 
 !sessions/.gitkeep
 !upload/.gitkeep
+!logs/.gitkeep
