@@ -21,7 +21,7 @@ class Upload
                 $name = uniqid() . '.' . $file->getExtension();
                 $data['files'][] = [
                     'file_name' => $name,
-                    'file_path' => '/storage/upload/' . $name,
+                    'file_path' => '/storage/uploads/' . $name,
                     'file_mime' => $file->getMime()
                 ];
 
