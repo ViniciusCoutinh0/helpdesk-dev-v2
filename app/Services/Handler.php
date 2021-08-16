@@ -4,9 +4,9 @@ namespace App\Services;
 
 use App\Artia\Api;
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
 use App\Models\Ticket\Ticket;
 use App\Models\Ticket\Answer;
+use Monolog\Handler\StreamHandler;
 
 class Handler
 {
@@ -27,7 +27,6 @@ class Handler
         $description .= "USUÁRIO HELPDESK: " . mb_convert_case($data['username'], MB_CASE_TITLE, 'UTF-8') . "\r\n";
         $description .= "\r\nMENSAGEM: \r\n";
         $description .= htmlspecialchars_decode($data['message']) . "\r\n \r\n";
-
 
         if (count($files)) {
             $description .= "LINK ANEXO(S) ENVIADO(S) PELO USUÁRIO: \r\n";
@@ -62,6 +61,8 @@ class Handler
             'estimatedEnd' => $data['estimated_end'],
             'estimatedEffort' => $data['estimated_effort'],
             'categoryText' => "Chamado Integrado via API",
+            'actualStart' => date('Y-m-d'),
+            'timeEstimatedStart' => date('H:i')
         ])->createActivity();
 
         $activity = $api->response();

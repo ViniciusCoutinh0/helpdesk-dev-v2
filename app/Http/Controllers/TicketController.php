@@ -71,14 +71,14 @@ class TicketController extends Ticket
         $required = [
             'words' => input()->post('words')->getValue(),
             'title' => input()->post('title')->getValue(),
-            'section' => (input()->exists('section') ? input()->post('section')->getValue() : null),
+            'section' => (input()->exists('section') ? html_entity_decode(input()->post('section')->getValue()) : null),
             'user_id' => Session()->USER_ID,
             'message' => input()->post('message')->getValue()
         ];
 
         if (input()->exists('section_user')) {
             $explode = explode(':', input()->post('section_user')->getValue());
-            $required['section'] = $explode[0];
+            $required['section'] = html_entity_decode($explode[0]);
             $required['user_id'] = $explode[1];
         }
 

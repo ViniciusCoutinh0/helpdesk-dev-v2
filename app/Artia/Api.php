@@ -77,12 +77,12 @@ class Api extends Request
             'responsibleId' => $this->responsibleId,
             'estimatedStart' => date('Y-m-d'),
             'estimatedEnd' => $this->estimatedEnd,
-            'actualStart' => date('Y-m-d'),
+            'actualStart' => $this->actualStart,
             'actualEnd' => '',
             'estimatedEffort' => floatval($this->estimatedEffort),
             'categoryText' => $this->categoryText,
             'priority' => 100,
-            'timeEstimatedStart' => date('H:i'),
+            'timeEstimatedStart' => $this->timeEstimatedStart,
             'timeEstimatedEnd' => '',
             'timeActualEnd' => '',
             'completedPercent' => 00.00
@@ -157,7 +157,9 @@ class Api extends Request
         ->body([
             'id', 'uid', 'communityId', 'customStatus' => [
                 'id', 'statusName', 'status',
-            ], 'actualEnd', 'timeActualEnd'
+            ], 'actualEnd', 'timeActualEnd', 'recurrence' => [
+                'startDate', 'endDate'
+            ]
         ])
         ->build();
     }
