@@ -10,12 +10,12 @@
                     <form method="post" action="<?=url('auth.sigin'); ?>" id="form-login">
                         <input type="hidden" name="csrf_token" value="<?=csrf_token();?>">
                         <div class="form-group">
-                            <label for="username" class="form-label required">Username:</label>
+                            <label for="username" class="form-label required">Login:</label>
                             <input type="text" name="username" id="username" class="form-control form-control-lg"
                                 value="<?=($data['username'] ?? null); ?>" required>
                         </div>
                         <div class="form-group">
-                            <label for="password" class="form-label required">Password:</label>
+                            <label for="password" class="form-label required">Senha:</label>
                             <input type="password" name="password" id="password" class="form-control form-control-lg"
                                 autocomplete="off" required>
                         </div>
