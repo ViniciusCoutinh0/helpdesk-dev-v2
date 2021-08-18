@@ -71,6 +71,7 @@ foreach ($tickets as $ticket) {
         'timeEstimatedStart' => date('H:i', strtotime($ticket->INICIALIZACAO))
     ])->createActivity();
 
+
     $response = $api->response();
 
     if (isset($response->errors)) {

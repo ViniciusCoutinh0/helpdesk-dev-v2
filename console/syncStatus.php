@@ -2,6 +2,7 @@
 
 use App\Artia\Api;
 use App\Artia\Token\Token;
+use App\Models\Ticket\Answer;
 use App\Models\Ticket\Ticket;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
