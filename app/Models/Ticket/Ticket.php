@@ -47,8 +47,10 @@ class Ticket extends Layer
     */
     public function getTicketsByUsernameAndState(User $user, $top = 8, int $state = 1): ?array
     {
-        $limit = ($top ? "TOP {$top} *" : "*");
-        return $this->find($limit)->where(['USUARIO' => $user->Username, 'ESTADO' => $state])->all();
+        return $this->find(($top ? 'TOP ' . $top . ' *' : '*'))
+        ->where(['USUARIO' => $user->Username, 'ESTADO' => $state])
+        ->orderBy('INICIALIZACAO', 'DESC')
+        ->all();
     }
 
     /**
@@ -57,9 +59,9 @@ class Ticket extends Layer
     */
     public function getTicketById(int $id): ?object
     {
-        return $this->findBy($id, 'TICKETS_CHAMADOS.*, Framework_Users.*, USUARIOS.NOME AS PROC_NOME')
-        ->join('USUARIOS', 'USUARIOS.USUARIO', '=', 'TICKETS_CHAMADOS.RESPONSAVEL_ARTIA')
-        ->join('Framework_Users', 'Framework_Users.Username', '=', 'TICKETS_CHAMADOS.USUARIO')
+        return $this->findBy($id, 'TICKETS_CHAMADOS . * , Framework_Users . * , USUARIOS . NOME as PROC_NOME')
+        ->join('USUARIOS', 'USUARIOS . USUARIO', ' = ', 'TICKETS_CHAMADOS . RESPONSAVEL_ARTIA')
+        ->join('Framework_Users', 'Framework_Users . Username', ' = ', 'TICKETS_CHAMADOS . USUARIO')
         ->first();
     }
 
@@ -116,8 +118,8 @@ class Ticket extends Layer
 
     public function getAllTicketsByBetween(string $first, string $last): ?array
     {
-        return $this->find('TICKETS_CHAMADOS.*, USUARIOS.NOME USUARIO_PROC')
-        ->join('USUARIOS', 'USUARIOS.USUARIO', '=', 'TICKETS_CHAMADOS.RESPONSAVEL_ARTIA')
-        ->orWhere('CONVERT(DATE, TICKETS_CHAMADOS.INICIALIZACAO)', 'BETWEEN', "'{$first}' AND '{$last}'")->all();
+        return $this->find('TICKETS_CHAMADOS . * , USUARIOS . NOME USUARIO_PROC')
+        ->join('USUARIOS', 'USUARIOS . USUARIO', ' = ', 'TICKETS_CHAMADOS . RESPONSAVEL_ARTIA')
+        ->orWhere('CONVERT(DATE, TICKETS_CHAMADOS . INICIALIZACAO)', 'BETWEEN', "'{$first}' AND '{$last}'")->all();
     }
 }

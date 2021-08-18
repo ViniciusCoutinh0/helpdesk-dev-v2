@@ -26,7 +26,7 @@ class SubCategory extends Layer
      */
     public function fieldsById(int $id): ?array
     {
-        return $this->find()
+        return $this->find('TICKETS_CAMPOS_PERSONALIZADOS.*')
         ->join('TICKETS_CAMPOS_PERSONALIZADOS', 'TICKETS_CAMPOS_PERSONALIZADOS.TICKET_SUB_CATEGORIA', '=', 'TICKETS_SUB_CATEGORIAS.TICKET_SUB_CATEGORIA')
         ->where(['TICKETS_SUB_CATEGORIAS.TICKET_SUB_CATEGORIA' => $id])
         ->all();

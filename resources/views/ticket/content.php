@@ -12,7 +12,7 @@
     </div>
     <div class="box-content p-2">
         <?php $decode = json_decode($ticket->MENSAGEM); ?>
-        <div class="d-flex p-1 align-items-center border-bottom">
+        <div class="d-flex p-1 align-items-start border-bottom">
             <img class="avatar" src="<?=asset('storage/avatar/' . mb_strtoupper($ticket->USUARIO[0]) . '.png'); ?>" alt="avatar.png">
             <div class="d-flex flex-column flex-wrap">
                 <div class="d-flex justify-content-start align-items-center">
@@ -33,7 +33,7 @@
         </div>
         <?php if ($commits) : ?>
             <?php foreach ($commits as $commit) : ?>
-            <div class="d-flex p-1 align-items-center border-bottom">
+            <div class="d-flex p-1 align-items-start border-bottom">
             <img class="avatar" src="<?=asset('storage/avatar/' . mb_strtoupper($commit->USUARIO[0]) . '.png'); ?>" alt="avatar.png">
             <div class="d-flex flex-column flex-wrap w-100">
                 <div class="d-flex justify-content-start align-items-center">

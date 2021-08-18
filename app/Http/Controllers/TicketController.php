@@ -143,16 +143,18 @@ class TicketController extends Ticket
 
         if ($fields) {
             foreach ($fields as $field) {
-                $name = str_replace(' ', '_', mb_strtolower($field->NOME));
+                if ($field->ATIVO === 'S') {
+                    $name = str_replace(' ', '_', mb_strtolower($field->NOME));
 
-                if (input()->exists($name)) {
-                    $value = input()->post($name)->getValue();
+                    if (input()->exists($name)) {
+                        $value = input()->post($name)->getValue();
+                    }
+
+                    $data['fields'][] = [
+                        'FIELD_NAME' => mb_convert_case(trim($field->DESCRICAO_CAMPO), MB_CASE_TITLE, 'UTF-8'),
+                        'FIELD_VALUE' => clearHtml($value)
+                    ];
                 }
-
-                $data['fields'][] = [
-                    'FIELD_NAME' => mb_convert_case(trim($field->DESCRICAO_CAMPO), MB_CASE_TITLE, 'UTF-8'),
-                    'FIELD_VALUE' => clearHtml($value)
-                ];
             }
         }
 
