@@ -35,8 +35,6 @@
     </div>
 </div>
 <button class="btn btn-danger btn-sm-lg mb-2" id="create-btn" role="button">Criar Chamado</button>
-<?php if (isset($message)) : ?>
-   <div class="alert alert-danger" role="alert">
-        <i class="fas fa-exclamation-circle"></i> <?=$message; ?>
-   </div> 
+<?php if ($message) : ?>
+    <?=$message; ?>
 <?php endif; ?>

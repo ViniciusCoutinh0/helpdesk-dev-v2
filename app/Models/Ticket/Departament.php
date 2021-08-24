@@ -34,4 +34,13 @@ class Departament extends Layer
         ->orWhere('TICKETS_SUB_CATEGORIAS.DESCRICAO', 'LIKE', "'%{$words}%'")
         ->all();
     }
+
+    /**
+     * @param App\Models\Ticket\Category $category
+     * @return null|object
+    */
+    public function getDepartmentByCategoryId(Category $category): ?object
+    {
+        return $this->find()->where(['TICKET_DEPARTAMENTO' => $category->TICKET_DEPARTAMENTO])->first();
+    }
 }

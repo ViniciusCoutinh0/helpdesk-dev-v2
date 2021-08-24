@@ -13,7 +13,7 @@
         <?php if ($sector->Name === 'Suporte T.i') : ?>
         <div class="form-group mb-2">
             <?php if ($sectors) : ?>
-            <label for="section_user" class="form-label required">Usuário:</label>
+            <label for="section_user" class="form-label required">Para qual usuário?</label>
             <select name="section_user" id="section_user" class="form-select" required>
                 <?php foreach ($sectors as $item) : ?>
                 <option value="<?=$item->Sector; ?>:<?=$item->Framework_User; ?>">

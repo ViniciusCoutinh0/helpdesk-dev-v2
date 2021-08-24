@@ -101,7 +101,5 @@
     <?php endif; ?>
 </div>
 <?php if ($message) : ?>
-    <div class="alert alert-danger" role="alert">
-        <i class="fas fa-exclamation-circle"></i> <?=$message; ?>
-    </div>
+    <?=$message; ?>
 <?php endif; ?>

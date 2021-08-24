@@ -32,4 +32,13 @@ class Category extends Layer
         ->where(['TICKETS_CATEGORIAS.TICKET_CATEGORIA' => $id])
         ->first();
     }
+
+    /**
+     * @param int $id
+     * @return null|object
+    */
+    public function getCategoryBySubCategory(SubCategory $subcategory): ?object
+    {
+        return $this->find()->where(['TICKET_CATEGORIA' => $subcategory->TICKET_CATEGORIA])->first();
+    }
 }

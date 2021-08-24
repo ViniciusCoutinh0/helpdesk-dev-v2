@@ -152,11 +152,15 @@ function Session(): Session
     return new Session();
 }
 /**
- * @return string
+ * @param string $key
+ * @return ?string
 */
-function env(string $key): string
+function env(string $key): ?string
 {
-    return $_ENV[$key];
+    if (array_key_exists($key, $_ENV)) {
+        return $_ENV[$key];
+    }
+    return null;
 }
 
 /**

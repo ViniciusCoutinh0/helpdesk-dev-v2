@@ -17,9 +17,9 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/"
-        }, 
+        },
         "files": [
-            "App/Helpers/Helper.php"
+            "app/Helpers/Helper.php"
         ]
     },
     "license": "MIT",
@@ -29,5 +29,8 @@
             "email": "vinicius@promofarma.com.br"
         }
     ],
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "require-dev": {
+        "symfony/var-dumper": "^5.3"
+    }
 }

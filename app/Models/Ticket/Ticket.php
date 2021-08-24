@@ -80,12 +80,12 @@ class Ticket extends Layer
 
         $column = (new Ticket());
         $column->USUARIO = $data['username'];
-        $column->SETOR = $data['section'];
+        $column->SETOR = html_entity_decode($data['section']);
         $column->TITULO = html_entity_decode($data['title']);
         $column->MENSAGEM = json_encode($encode, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $column->NUMERO_BALCONISTA = $data['employee_number'];
-        $column->NOME_BALCONISTA = $data['employee_name'];
-        $column->COMPUTADOR = $data['computer'];
+        $column->NOME_BALCONISTA = html_entity_decode($data['employee_name']);
+        $column->COMPUTADOR = html_entity_decode($data['computer']);
         $column->DEPARTAMENTO = $data['departament'];
         $column->CATEGORIA = $data['category'];
         $column->SUB_CATEGORIA = $data['subcategory'];
@@ -114,6 +114,24 @@ class Ticket extends Layer
             return $id;
         }
         return null;
+    }
+
+    /**
+     * @param int $id
+     * @param int $id_artia
+     * @return null|bool
+    */
+    public function updateArtiaIdByTicketId(int $id, int $id_artia): ?bool
+    {
+        $ticket = (new Ticket())->findBy($id)->first();
+
+        if (!$ticket) {
+            return null;
+        }
+
+        $ticket->TICKET_CHAMADO = $id;
+        $ticket->ID_ARTIA = $id_artia;
+        return $ticket->save();
     }
 
     public function getAllTicketsByBetween(string $first, string $last): ?array

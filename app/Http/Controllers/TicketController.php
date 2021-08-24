@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Common\Upload;
 use App\Common\View;
+use App\Common\Upload;
+use App\Common\Message;
 use App\Services\Handler;
 use App\Models\Entity\User;
 use App\Models\Ticket\Ticket;
@@ -12,21 +13,23 @@ use App\Models\Ticket\Answer;
 use App\Models\Ticket\SubCategory;
 use App\Models\Ticket\Attachment;
 use App\Models\Ticket\Category;
+use App\Models\Ticket\Departament;
 
 class TicketController extends Ticket
 {
     /**
-     * @var \App\Common\View
+     * @var \App\Common\View $view
     */
     private $view;
 
     /**
-     * @var string
+     * @var \App\Common\Message $message
     */
     private $message;
 
     public function __construct()
     {
+        $this->message = new Message();
         $this->view = new View();
     }
 
@@ -69,39 +72,40 @@ class TicketController extends Ticket
     public function store(): void
     {
         $required = [
-            'words' => input()->post('words')->getValue(),
-            'title' => input()->post('title')->getValue(),
-            'section' => (input()->exists('section') ? html_entity_decode(input()->post('section')->getValue()) : null),
-            'user_id' => Session()->USER_ID,
-            'message' => input()->post('message')->getValue()
+            'title' => trim(input()->post('title')->getValue()),
+            'worlds' => trim(input()->post('words')->getValue()),
+            'message' => trim(clearEmoji(input()->post('message')->getValue())),
+            'subcategory' => null
         ];
 
+        if (input()->exists('section')) {
+            $required['section'] = input()->post('section')->getValue();
+            $required['user_id'] = (int) Session()->USER_ID;
+        }
+
         if (input()->exists('section_user')) {
-            $explode = explode(':', input()->post('section_user')->getValue());
-            $required['section'] = html_entity_decode($explode[0]);
-            $required['user_id'] = $explode[1];
+            $index = explode(':', input()->post('section_user')->getValue());
+            $required['section'] = $index[0];
+            $required['user_id'] = (int) $index[1];
+        }
+
+        if (input()->exists('subcategory')) {
+            $required['subcategory'] = (int) input()->post('subcategory')->getValue();
+        }
+
+        if (in_array('', $required)) {
+            $this->message->error('Existem campos obrigátorios em branco, por favor preencha todos os campos.');
+            $this->viewStore();
+            return;
         }
 
         $required = array_map('clearHtml', $required);
 
-        if (in_array('', $required)) {
-            $this->message = 'Existem campos obrigatórios em branco, por favor preencha todos os campos.';
-            $this->viewStore();
-            return;
-        }
+        $subcategory = (new SubCategory())->getSubCategoryById($required['subcategory']);
+        $category = (new Category())->getCategoryBySubCategory($subcategory);
+        $departament = (new Departament())->getDepartmentByCategoryId($category);
 
-        $subcategoryId = input()->post('subcategory')->getValue();
-
-        if (empty($subcategoryId)) {
-            $this->message = 'Selecione um assunto para continuar.';
-            $this->viewStore();
-            return;
-        }
-
-        $subcategory = (new SubCategory())->findBy($subcategoryId)->first();
-        $category = (new Category())->joinDepartament((int) $subcategory->TICKET_CATEGORIA);
-
-        $user = (new User())->getUserById((int) $required['user_id']);
+        $user = (new User())->getUserById($required['user_id']);
 
         if (!$user) {
             redirect(url('app.home'));
@@ -109,15 +113,15 @@ class TicketController extends Ticket
         }
 
         $data = [
-            'username' => $user->Username,
-            'computer' => 'Não informado pelo Cliente',
-            'employee_name' => 'Não identificado(a)',
+            'username' => mb_strtolower($user->Username),
+            'computer' => 'Não Informado Pelo Cliente.',
+            'employee_name' => 'Não Identificado(a).',
             'employee_number' => 0,
-            'description' => mb_convert_case($subcategory->DESCRICAO, MB_CASE_TITLE, 'UTF-8'),
-            'departament' => mb_convert_case($category->NOME, MB_CASE_TITLE, 'UTF-8'),
-            'category' => mb_convert_case(trim($category->CATEGORIA_NOME), MB_CASE_TITLE, 'UTF-8'),
-            'subcategory' => mb_convert_case(trim($subcategory->NOME), MB_CASE_TITLE, 'UTF-8'),
-            'folder_id' => (int) $category->FOLDER_ID,
+            'description' => mb_convert_case($subcategory->DESCRICAO, MB_CASE_TITLE, 'utf-8'),
+            'departament' => mb_convert_case($departament->NOME, MB_CASE_TITLE, 'utf-8'),
+            'category' => mb_convert_case($category->NOME, MB_CASE_TITLE, 'utf-8'),
+            'subcategory' => mb_convert_case($subcategory->NOME, MB_CASE_TITLE, 'utf-8'),
+            'folder_id' => (int) $departament->FOLDER_ID,
             'responsible_id' => (int) $subcategory->USUARIO,
             'responsible' => (int) $subcategory->USUARIO_ARTIA,
             'estimated_effort' => floatval($subcategory->ESFORCO),
@@ -126,33 +130,30 @@ class TicketController extends Ticket
         ];
 
         if (input()->exists('computer')) {
-            $data['computer'] = input()->post('computer')->getValue();
+            $data['computer'] = clearHtml(input()->post('computer')->getValue());
         }
 
         if (input()->exists('employee')) {
-            $str = explode(' ', input()->post('employee')->getValue());
-            $data['employee_number'] = (int) $str[0];
-            $data['employee_name'] = "{$str[2]} {$str[3]}";
+            $explode = explode(' ', clearHtml(input()->post('employee')->getValue()));
+            $data['employee_name'] = mb_convert_case("{$explode[2]} {$explode[3]}", MB_CASE_TITLE, 'utf-8');
+            $data['employee_number'] = (int) $explode[0];
         }
 
         if (input()->exists('on_duty')) {
-            $data['on_duty'] = (input()->post('on_duty') == 'on' ? 'S' : 'N');
+            $data['on_duty'] = (input()->post('on_duty')->getValue() == 'on' ? 'S' : 'N');
         }
 
-        $fields = (new SubCategory())->fieldsById((int) $subcategoryId);
+        $fields = (new SubCategory())->fieldsById($subcategory->TICKET_SUB_CATEGORIA);
 
         if ($fields) {
             foreach ($fields as $field) {
-                if ($field->ATIVO === 'S') {
+                if ($field-> ATIVO === 'S') {
                     $name = str_replace(' ', '_', mb_strtolower($field->NOME));
-
-                    if (input()->exists($name)) {
-                        $value = input()->post($name)->getValue();
-                    }
+                    $value = input()->post($name)->getValue();
 
                     $data['fields'][] = [
-                        'FIELD_NAME' => mb_convert_case(trim($field->DESCRICAO_CAMPO), MB_CASE_TITLE, 'UTF-8'),
-                        'FIELD_VALUE' => clearHtml($value)
+                        'FIELD_NAME' => mb_convert_case(trim($field->DESCRICAO_CAMPO), MB_CASE_TITLE, 'utf-8'),
+                        'FIELD_VALUE' => clearHtml(trim($value))
                     ];
                 }
             }
@@ -161,29 +162,24 @@ class TicketController extends Ticket
         $files = Upload::move(input()->file('attachment'), $this->isValid);
 
         if (isset($files['validation'])) {
-            $this->message = $files['validation'];
+            $this->message->error($files['validation']);
             $this->viewStore();
             return;
         }
 
-        $data = array_merge($required, $data);
+        $merge = array_merge($required, $data);
+        $create = $this->createTicket($merge, $files);
 
-        $id = $this->createTicket($data, $files);
-
-        $activity = Handler::createActivity($id, $data, $files);
-
-        if (!$id) {
-            $this->message = 'Falha ao enviar as informações do chamado por favor tente novamente';
+        if (!$create) {
+            $this->message->error('Falha ao enviar as informações do chamado, por favor tente novamente');
             $this->viewStore();
             return;
         }
 
-        $update = (new Ticket())->findBy($id)->first();
-        $update->TICKET_CHAMADO = $id;
-        $update->ID_ARTIA = $activity;
-        $update->save();
+        $id_artia = Handler::createActivity($create, $merge, $files);
+        $this->updateArtiaIdByTicketId($create, $id_artia);
 
-        redirect(url('ticket.show', ['id' => $id]));
+        redirect(url('ticket.show', ['id' => $create]));
     }
 
     public function commitStore(int $id): void
