@@ -118,7 +118,7 @@ function clearCache(array $data): void
  */
 function defaultUrl(): string
 {
-    if (request()->getHost() == '192.168.1.2:8080') {
+    if (request()->getHost() == 'localhost') {
         return env('CONFIG_APP_DEV_URL');
     }
 

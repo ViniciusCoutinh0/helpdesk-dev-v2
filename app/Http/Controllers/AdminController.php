@@ -205,10 +205,18 @@ class AdminController extends User
         $csv = Writer::createFromString('');
         $csv->setDelimiter(';');
         $header = [
-            'Protocolo', 'ID Artia', 'Departamento', 'Categoria', 'Sub Categoria',
-            'Atendente/Responsavel', 'Cliente/Solicitante', utf8_decode('Inicialização'),
-            utf8_decode('Data de Criação'), utf8_decode('Data de Finalização'), utf8_decode('Horas de Abertura até a Finalização'),
-            utf8_decode('Horas da Abertura até a Primeira Iteração'), utf8_decode('Plantão')
+            'Protocolo', 
+            'ID Artia',
+            'Departamento', 
+            'Categoria', 
+            'Sub Categoria',
+            utf8_decode('Atendente/Responsável'), 
+            'Cliente/Solicitante', 
+            utf8_decode('Inicialização'),
+            utf8_decode('Data de Criação'), 
+            utf8_decode('Data de Finalização'), 
+            utf8_decode('Horas de Abertura até a Finalização'),
+            utf8_decode('Plantão')
         ];
 
         $csv->insertOne($header);
@@ -216,27 +224,26 @@ class AdminController extends User
         $lines = [];
         foreach ($data as $ticket) {
             $startup = new \DateTime($ticket->INICIALIZACAO);
-            $completion = new \DateTime($ticket->FINALIZACAO_ARTIA);
-            $firstCommit = new \DateTime($ticket->ATUALIZACAO);
-
-            $intervals = [
-                'finish' => $startup->diff($completion),
-                'commit' => $startup->diff($firstCommit)
-            ];
+            $end = new \DateTime($ticket->FINALIZACAO_ARTIA);
+            $interval = $startup->diff($end);
 
             $lines[] = [
-                $ticket->TICKET_CHAMADO, $ticket->ID_ARTIA, utf8_decode($ticket->DEPARTAMENTO),
-                utf8_decode($ticket->CATEGORIA), utf8_decode($ticket->SUB_CATEGORIA), mb_convert_case($ticket->USUARIO_PROC, MB_CASE_TITLE, 'UTF-8'),
-                $ticket->USUARIO, date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)), date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)),
+                $ticket->TICKET_CHAMADO,
+                $ticket->ID_ARTIA, 
+                utf8_decode($ticket->DEPARTAMENTO),
+                utf8_decode($ticket->CATEGORIA), 
+                utf8_decode($ticket->SUB_CATEGORIA), 
+                mb_convert_case($ticket->USUARIO_PROC, MB_CASE_TITLE, 'utf-8'),
+                $ticket->USUARIO, date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)),
+                date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)),
                 ($ticket->FINALIZACAO_ARTIA ? date('d/m/Y H:i:s', strtotime($ticket->FINALIZACAO_ARTIA)) : ''),
-                (!is_null($ticket->FINALIZACAO_ARTIA) ? $intervals['finish']->h . ':' . $intervals['finish']->i . ':' . $intervals['finish']->s : ''),
-                (!is_null($ticket->ATUALIZACAO) ? $intervals['commit']->h . ':' . $intervals['commit']->i . ':' . $intervals['commit']->s : ''),
+                (!is_null($ticket->FINALIZACAO_ARTIA) ? ($interval->h + ($interval->days * 24)) . ':' . $interval->i . ':' . $interval->s : ''),
                 ($ticket->PLANTAO === 'S' ? 'SIM' : utf8_decode('NÃO'))
             ];
         }
 
         $csv->insertAll($lines);
-        $csv->output('Relatório_Chamados.csv');
+        $csv->output('Relatório_Chamados_'.date('Y-m-d').'.csv');
         die();
     }
 
