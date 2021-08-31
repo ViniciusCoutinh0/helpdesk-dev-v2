@@ -2,8 +2,8 @@
 
 use App\Artia\Api;
 use App\Artia\Token\Token;
-use App\Models\Ticket\Answer;
 use App\Models\Ticket\Ticket;
+use App\Models\Entity\Entity;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
@@ -41,13 +41,23 @@ foreach ($tickets as $ticket) {
 
         $response = $api->response();
         $status = trim($response->data->showActivity->customStatus->statusName);
-
+        
         echo "|" . $ticket->ID_ARTIA . "|" . $status . PHP_EOL;
-        if ($status == 'Encerrado') {
+        
+        if ($status === 'Encerrado') {
             $date = $response->data->showActivity->actualEnd;
             $time = str_replace(' ', '', $response->data->showActivity->timeActualEnd);
 
+            $responsible = trim($response->data->showActivity->responsible->id);
+            $user = (new Entity())->find()->where(['USUARIO_ARTIA' => $responsible])->first();
+
             $ticket->ESTADO = 2;
+
+            if($ticket->RESPONSAVEL_ARTIA != $user->COD_PROCFIT) {
+                echo '|'. $ticket->ID_ARTIA . '|' . 'De ' . $ticket->RESPONSAVEL_ARTIA .  ' Transferido para: ' . $user->COD_PROCFIT . PHP_EOL; 
+                $ticket->RESPONSAVEL_ARTIA = (int) $user->COD_PROCFIT;
+            }
+
             $ticket->FINALIZACAO_ARTIA = date('Y-m-d H:i:s', strtotime($date . ' ' . $time));
             $ticket->save();
 

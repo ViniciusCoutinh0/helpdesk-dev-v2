@@ -53,15 +53,23 @@ class Ticket extends Layer
         ->all();
     }
 
+    public function getAllTicketsByResponsableId(): ?array
+    {
+        return $this->find('TICKETS_CHAMADOS.*, USUARIOS_ARTIA.USUARIO_ARTIA')
+        ->join('USUARIOS_ARTIA', 'USUARIOS_ARTIA.COD_PROCFIT', '=', 'TICKETS_CHAMADOS.RESPONSAVEL_ARTIA')
+        ->where(['ESTADO' => 1])
+        ->all();
+    }
+
     /**
      * @param int $id
      * @return null|object
     */
     public function getTicketById(int $id): ?object
     {
-        return $this->findBy($id, 'TICKETS_CHAMADOS . * , Framework_Users . * , USUARIOS . NOME as PROC_NOME')
-        ->join('USUARIOS', 'USUARIOS . USUARIO', ' = ', 'TICKETS_CHAMADOS . RESPONSAVEL_ARTIA')
-        ->join('Framework_Users', 'Framework_Users . Username', ' = ', 'TICKETS_CHAMADOS . USUARIO')
+        return $this->findBy($id, 'TICKETS_CHAMADOS.* , Framework_Users.* , USUARIOS.NOME AS PROC_NOME')
+        ->join('USUARIOS', 'USUARIOS.USUARIO', '=', 'TICKETS_CHAMADOS.RESPONSAVEL_ARTIA')
+        ->join('Framework_Users', 'Framework_Users.Username', '=', 'TICKETS_CHAMADOS.USUARIO')
         ->first();
     }
 

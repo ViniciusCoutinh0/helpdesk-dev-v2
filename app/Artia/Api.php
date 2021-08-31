@@ -157,9 +157,9 @@ class Api extends Request
         ->body([
             'id', 'uid', 'communityId', 'customStatus' => [
                 'id', 'statusName', 'status',
-            ], 'actualEnd', 'timeActualEnd', 'recurrence' => [
-                'startDate', 'endDate'
-            ]
+            ], 'actualEnd', 'timeActualEnd', 'responsible' => [
+                'id', 'name'
+            ], 
         ])
         ->build();
     }
