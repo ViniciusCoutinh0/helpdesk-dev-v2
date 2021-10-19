@@ -41,7 +41,7 @@
             <input type="number" name="employee" id="employee" class="form-control" maxlength="4" placeholder="Número do Balconista" autocomplete="off" required>
         </div>
         <div class="form-group">
-            <label for="computer" class="form-label">Acesso Remoto:</label>
+            <label for="computer" class="form-label">IP do Computador:</label>
             <input type="text" name="computer" id="computer" class="form-control" autocomplete="off">
         </div>
         <?php endif; ?>
