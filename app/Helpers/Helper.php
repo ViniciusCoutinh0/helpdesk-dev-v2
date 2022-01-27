@@ -119,10 +119,10 @@ function clearCache(array $data): void
 function defaultUrl(): string
 {
     if (request()->getHost() != 'app.promofarma.int') {
-        return env('CONFIG_APP_DEV_URL');
+        return env('CONFIG_APP_PRO_URL');
     }
 
-    return env('CONFIG_APP_PRO_URL');
+    return env('CONFIG_APP_DEV_URL');
 }
 
 /**
