@@ -15,18 +15,18 @@ class Handler
      * @param array $data
      * @param array $files
      * @return int
-    */
+     */
     public static function createActivity(int $id, array $data, array $files = []): int
     {
         $logger = new Logger('Helpdesk');
         $logger->pushHandler(new StreamHandler(__DIR__ . env('CONFIG_PATH_LOG') . '/createActivity.txt', Logger::WARNING));
 
-        $description = "Detalhes do Chamado: " . htmlspecialchars_decode($data['title']) . " \r\n";
-        $description .= html_entity_decode($data['description']) . "\r\n";
+        $description = "Detalhes do Chamado: " . $data['title'] . " \r\n";
+        $description .= $data['description'] . "\r\n";
         $description .= "SETOR: {$data['section']} - ";
         $description .= "USUÁRIO HELPDESK: " . mb_convert_case($data['username'], MB_CASE_TITLE, 'UTF-8') . "\r\n";
         $description .= "\r\nMENSAGEM: \r\n";
-        $description .= htmlspecialchars_decode($data['message']) . "\r\n \r\n";
+        $description .= $data['message'] . "\r\n \r\n";
 
         if (count($files)) {
             $description .= "LINK ANEXO(S) ENVIADO(S) PELO USUÁRIO: \r\n";
@@ -53,15 +53,15 @@ class Handler
 
         $api = new Api();
         $api->requireds([
-            'title' => "[#$id] " . htmlspecialchars_decode($data['section']) . " " . mb_strtoupper($data['username']) . ": " . htmlspecialchars_decode($data['title']),
-            'accountId' => (int) env('CONFIG_API_ACCOUNT_ID'),
-            'folderId' =>  (int) $data['folder_id'],
-            'description' => filter_var($description, FILTER_SANITIZE_SPECIAL_CHARS),
+            'title'         => sprintf('[#%d] %s %s: %s', $id, $data['section'], $data['username'], $data['title']),
+            'accountId'     => (int) env('CONFIG_API_ACCOUNT_ID'),
+            'folderId'      =>  (int) $data['folder_id'],
+            'description'   => $description,
             'responsibleId' => $data['responsible'],
-            'estimatedEnd' => $data['estimated_end'],
+            'estimatedEnd'  => $data['estimated_end'],
             'estimatedEffort' => $data['estimated_effort'],
-            'categoryText' => "Chamado Integrado via API",
-            'actualStart' => date('Y-m-d'),
+            'categoryText'   => "Chamado Integrado via API",
+            'actualStart'    => date('Y-m-d'),
             'timeEstimatedStart' => date('H:i')
         ])->createActivity();
 
@@ -84,14 +84,14 @@ class Handler
      * @param string $message
      * @param array $files
      * @return object
-    */
+     */
     public static function createComment(int $id, string $message, array $files = []): object
     {
         $logger = new Logger('Helpdesk');
         $logger->pushHandler(new StreamHandler(__DIR__ . env('CONFIG_PATH_LOG') . '/createComment.txt', Logger::WARNING));
 
         $comment = "Integrado \r\n";
-        $comment .= "*" . html_entity_decode(trim($message)) . "\r\n \r\n";
+        $comment .= "*" . trim($message) . "\r\n \r\n";
 
         if (count($files)) {
             foreach ($files['files'] as $file) {
@@ -104,7 +104,7 @@ class Handler
             'id' => $id,
             'accountId' => (int) env('CONFIG_API_ACCOUNT_ID'),
             'object' => 'activity',
-            'content' => filter_var($comment, FILTER_SANITIZE_SPECIAL_CHARS),
+            'content' => $comment,
             /* 'createBy' => 'noreply@promofarma.com.br', */
             /* 'users' => ['196653']*/
         ])->createComment();
@@ -124,7 +124,7 @@ class Handler
     /**
      * @param int $id
      * @return void
-    */
+     */
     public static function listingCommentsNotViewed(int $id): void
     {
         $ticket = (new Ticket())->findBy($id)->first();

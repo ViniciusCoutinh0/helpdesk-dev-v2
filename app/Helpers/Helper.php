@@ -90,7 +90,7 @@ function csrf_token(): ?string
 
 /**
  * @return null|string
-*/
+ */
 function old(string $key): ?string
 {
     if (input()->exists($key)) {
@@ -103,7 +103,7 @@ function old(string $key): ?string
 /**
  * @param array $data
  * @return void
-*/
+ */
 function clearCache(array $data): void
 {
     if (count($data)) {
@@ -118,11 +118,7 @@ function clearCache(array $data): void
  */
 function defaultUrl(): string
 {
-    if (request()->getHost() == '192.168.1.2:8080') {
-        return env('CONFIG_APP_DEV_URL');
-    }
-
-    return env('CONFIG_APP_PRO_URL');
+    return 'http://localhost/helpdesk';
 }
 
 /**
@@ -138,7 +134,7 @@ function asset(string $path = null): string
 
 /**
  * @return string
-*/
+ */
 function pathOs(string $path, string $default = '/'): string
 {
     return str_replace($default, DIRECTORY_SEPARATOR, $path);
@@ -146,7 +142,7 @@ function pathOs(string $path, string $default = '/'): string
 
 /**
  * @return Session
-*/
+ */
 function Session(): Session
 {
     return new Session();
@@ -154,7 +150,7 @@ function Session(): Session
 /**
  * @param string $key
  * @return ?string
-*/
+ */
 function env(string $key): ?string
 {
     if (array_key_exists($key, $_ENV)) {
@@ -165,7 +161,7 @@ function env(string $key): ?string
 
 /**
  * @return string
-*/
+ */
 function clearHtml(string $str): string
 {
     return htmlentities(strip_tags($str), ENT_QUOTES, 'UTF-8');
@@ -174,7 +170,7 @@ function clearHtml(string $str): string
 /**
  * @link https://gist.github.com/quantizer/5744907
  * @return string
-*/
+ */
 function clearEmoji(string $str): string
 {
     $cleanText = "";

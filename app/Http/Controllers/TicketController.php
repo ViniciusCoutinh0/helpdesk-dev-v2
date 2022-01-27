@@ -19,12 +19,12 @@ class TicketController extends Ticket
 {
     /**
      * @var \App\Common\View $view
-    */
+     */
     private $view;
 
     /**
      * @var \App\Common\Message $message
-    */
+     */
     private $message;
 
     public function __construct()
@@ -147,7 +147,7 @@ class TicketController extends Ticket
 
         if ($fields) {
             foreach ($fields as $field) {
-                if ($field-> ATIVO === 'S') {
+                if ($field->ATIVO === 'S') {
                     $name = str_replace(' ', '_', mb_strtolower($field->NOME));
                     $value = input()->post($name)->getValue();
 
