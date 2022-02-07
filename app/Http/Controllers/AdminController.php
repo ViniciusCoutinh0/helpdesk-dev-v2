@@ -15,12 +15,12 @@ class AdminController extends User
 {
     /**
      * @var App\Common\View
-    */
+     */
     private $view;
 
     /**
      * @var App\Common\Message
-    */
+     */
     private $message;
 
     public function __construct()
@@ -53,7 +53,7 @@ class AdminController extends User
         $sectors = (new Sector())->getAllSectors();
         $message = $this->message;
 
-        echo $this->view->render('admin/adduser', compact('sectors', 'message'));
+        echo $this->view->render('admin/addUser', compact('sectors', 'message'));
     }
 
     public function createUser(): void
@@ -205,16 +205,16 @@ class AdminController extends User
         $csv = Writer::createFromString('');
         $csv->setDelimiter(';');
         $header = [
-            'Protocolo', 
+            'Protocolo',
             'ID Artia',
-            'Departamento', 
-            'Categoria', 
+            'Departamento',
+            'Categoria',
             'Sub Categoria',
-            utf8_decode('Atendente/Responsável'), 
-            'Cliente/Solicitante', 
+            utf8_decode('Atendente/Responsável'),
+            'Cliente/Solicitante',
             utf8_decode('Inicialização'),
-            utf8_decode('Data de Criação'), 
-            utf8_decode('Data de Finalização'), 
+            utf8_decode('Data de Criação'),
+            utf8_decode('Data de Finalização'),
             utf8_decode('Horas de Abertura até a Finalização'),
             utf8_decode('Plantão')
         ];
@@ -229,10 +229,10 @@ class AdminController extends User
 
             $lines[] = [
                 $ticket->TICKET_CHAMADO,
-                $ticket->ID_ARTIA, 
+                $ticket->ID_ARTIA,
                 utf8_decode($ticket->DEPARTAMENTO),
-                utf8_decode($ticket->CATEGORIA), 
-                utf8_decode($ticket->SUB_CATEGORIA), 
+                utf8_decode($ticket->CATEGORIA),
+                utf8_decode($ticket->SUB_CATEGORIA),
                 mb_convert_case($ticket->USUARIO_PROC, MB_CASE_TITLE, 'utf-8'),
                 $ticket->USUARIO, date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)),
                 date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)),
@@ -243,7 +243,7 @@ class AdminController extends User
         }
 
         $csv->insertAll($lines);
-        $csv->output('Relatório_Chamados_'.date('Y-m-d').'.csv');
+        $csv->output('Relatório_Chamados_' . date('Y-m-d') . '.csv');
         die();
     }
 

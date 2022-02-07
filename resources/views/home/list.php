@@ -1,60 +1,88 @@
-<div class="row">
+<div class="row mb-2">
     <div class="col-12 mb-2">
         <div class="box">
-            <div class="box-header d-flex justify-content-between align-items-center">
-                <span>Chamados Abertos</span>
-                <a href="<?=url('app.list.state', ['user' => $user->Framework_User, 'state' => 1]); ?>" class="btn btn-dark btn-sm">Ver Todos</a>
-            </div>
-            <div class="box-content p-2">
-                <?php if ($open) : ?>
-                <ul class="list-group list-group-flush">
-                    <?php foreach ($open as $item) : ?>
-                    <li class="list-group-item d-flex flex-column justify-content-between align-items-start">
-                        <a class="text-reset text-decoration-none" href="<?=url('ticket.show', ['id' => $item->TICKET_CHAMADO]); ?>">
-                            <span class="badge bg-success">Aberto</span>
-                            #<?=$item->ID_ARTIA; ?> - <?=mb_convert_case(html_entity_decode($item->TITULO), MB_CASE_TITLE, 'UTF-8'); ?>
-                        </a>
-                        <span class="fs-7" style="color: #8c8d8f;">Departamento responsável:
-                            <strong><?=mb_convert_case($item->DEPARTAMENTO, MB_CASE_TITLE, 'UTF-8'); ?></strong> -
-                            Criado em:
-                            <strong><?=date('d/m à\s H:i', strtotime($item->INICIALIZACAO)); ?></strong></span>
-                    </li>
-                    <?php endforeach; ?>
-                </ul>
-                <?php else : ?>
-                <div class="alert alert-info" role="alert">
-                   Nenhum chamado em aberto no momento...
+            <div class="box-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="py-0 my-0">Chamados Abertos</h5>
+                    <a href="<?= url('app.list.state', ['user' => $user->Framework_User, 'state' => 1]); ?>" class="btn btn-primary btn-sm blue">Ver Todos</a>
                 </div>
+            </div>
+            <div class="box-content">
+                <?php if ($open) : ?>
+                    <?php foreach ($open as $item) : ?>
+                        <div class="box-inline">
+                            <div class="content">
+                                <div class="detail">
+                                    <img src="<?= asset('storage/avatar/' . mb_strtoupper($user->Username[0]) . '.png'); ?>" alt="" class="avatar">
+                                    <div class="group">
+                                        <span>Nº.:</span>
+                                        <?= $item->ID_ARTIA; ?>
+                                    </div>
+                                    <div class="group">
+                                        <span>Aberto em:</span>
+                                        <?= date('d/m à\s H:i', strtotime($item->INICIALIZACAO)); ?>
+                                    </div>
+                                    <div class="group">
+                                        <span>Departamento responsável:</span>
+                                        <?= mb_convert_case($item->DEPARTAMENTO, MB_CASE_TITLE, 'UTF-8'); ?>
+                                    </div>
+                                    <div class="group">
+                                        <span>Assunto do Chamado:</span>
+                                        <?= mb_convert_case(html_entity_decode($item->TITULO), MB_CASE_TITLE, 'UTF-8'); ?>
+                                    </div>
+                                </div>
+                                <a href="<?= url('ticket.show', ['id' => $item->TICKET_CHAMADO]); ?>" class="btn btn-sm btn-primary">Visualizar</a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <div class="alert alert-info" role="alert">
+                        Nenhum chamado em aberto no momento...
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
     </div>
-    <div class="col-12 mb-2">
+    <div class="col-12">
         <div class="box">
-            <div class="box-header d-flex justify-content-between align-items-center">
-                <span>Chamados Finalizados</span>
-                <a href="<?=url('app.list.state', ['user' => $user->Framework_User,'state' => 2]); ?>" class="btn btn-dark btn-sm">Ver Todos</a>
-            </div>
-            <div class="box-content p-2">
-                <?php if ($closed) : ?>
-                <ul class="list-group list-group-flush">
-                    <?php foreach ($closed as $item) : ?>
-                    <li class="list-group-item d-flex flex-column justify-content-between align-items-start">
-                        <a class="text-reset text-decoration-none" href="<?=url('ticket.show', ['id' => $item->TICKET_CHAMADO]); ?>">
-                            <span class="badge bg-danger">Fechado</span>
-                            #<?=$item->ID_ARTIA; ?> - <?=mb_convert_case(html_entity_decode($item->TITULO), MB_CASE_TITLE, 'UTF-8'); ?>
-                        </a>
-                        <span class="fs-7" style="color: #8c8d8f;">Departamento responsável:
-                            <strong><?=mb_convert_case($item->DEPARTAMENTO, MB_CASE_TITLE, 'UTF-8'); ?></strong> -
-                            Finalizado em:
-                            <strong><?=date('d/m à\s H:i', strtotime($item->FINALIZACAO_ARTIA)); ?></strong></span>
-                    </li>
-                    <?php endforeach; ?>
-                </ul>
-                <?php else : ?>
-                <div class="alert alert-info" role="alert">
-                    Nenhum chamado em aberto no momento...
+            <div class="box-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="py-0 my-0">Chamados Finalizados</h5>
+                    <a href="<?= url('app.list.state', ['user' => $user->Framework_User, 'state' => 2]); ?>" class="btn btn-primary btn-sm blue">Ver Todos</a>
                 </div>
+            </div>
+            <div class="box-content">
+                <?php if ($closed) : ?>
+                    <?php foreach ($closed as $item) :  ?>
+                        <div class="box-inline">
+                            <div class="content">
+                                <div class="detail">
+                                    <img src="<?= asset('storage/avatar/' . mb_strtoupper($user->Username[0]) . '.png'); ?>" alt="" class="avatar">
+                                    <div class="group">
+                                        <span>Nº.:</span>
+                                        <?= $item->ID_ARTIA; ?>
+                                    </div>
+                                    <div class="group">
+                                        <span>Finalizado em:</span>
+                                        <?= date('d/m à\s H:i', strtotime($item->FINALIZACAO_ARTIA)); ?>
+                                    </div>
+                                    <div class="group">
+                                        <span>Departamento responsável:</span>
+                                        <?= mb_convert_case($item->DEPARTAMENTO, MB_CASE_TITLE, 'UTF-8'); ?>
+                                    </div>
+                                    <div class="group">
+                                        <span>Assunto do Chamado:</span>
+                                        <?= mb_convert_case(html_entity_decode($item->TITULO), MB_CASE_TITLE, 'UTF-8'); ?>
+                                    </div>
+                                </div>
+                                <a href="<?= url('ticket.show', ['id' => $item->TICKET_CHAMADO]); ?>" class="btn btn-sm btn-primary">Visualizar</a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <div class="alert alert-info" role="alert">
+                        Nenhum chamado em aberto no momento...
+                    </div>
                 <?php endif; ?>
             </div>
         </div>

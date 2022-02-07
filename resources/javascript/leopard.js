@@ -176,7 +176,7 @@ function toggleMenu(event) {
 }
 
 function execToggle() {
-    const btn_mobile = document.getElementById('btn-mobile');
+    const btn_mobile = document.getElementById('mobile-btn');
 
     btn_mobile.addEventListener('click', toggleMenu);
     btn_mobile.addEventListener('touchstart', toggleMenu);
