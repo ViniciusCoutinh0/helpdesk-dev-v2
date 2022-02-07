@@ -22,7 +22,7 @@ function categories() {
     };
 
     elements.word.addEventListener('keyup', function () {
-        fetch('/helpdesk-dev/request/type/category', {
+        fetch('/helpdesk/request/type/category', {
                 method: 'POST',
                 body: JSON.stringify({
                     words: this.value
@@ -81,7 +81,7 @@ function categories() {
 
                         elements.block.appendChild(hidden);
 
-                        fetch('/helpdesk-dev/request/type/fields', {
+                        fetch('/helpdesk/request/type/fields', {
                                 method: 'POST',
                                 body: JSON.stringify({
                                     id: subcategory
