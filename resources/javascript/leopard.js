@@ -186,7 +186,7 @@ function employee(id) {
     const entity = document.getElementById(id);
     
     entity.addEventListener('blur', function() {    
-        fetch('/helpdesk-dev/request/type/entity', {
+        fetch('/helpdesk/request/type/entity', {
             method: 'POST',
             body: JSON.stringify({
                 entity: this.value
