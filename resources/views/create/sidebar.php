@@ -9,7 +9,7 @@
     </div>
     <div class="box-header border-top">Informações do Cliente</div>
     <div class="box-content">
-        <?php if ($sector->Name === 'Suporte T.i' || $sector->Name === 'Desenvolvimento') : ?>
+        <?php if ($sector->Name === 'Suporte T.i' || $sector->Name === 'Desenvolvimento' || $sector->Name === 'Recursos  Humanos') : ?>
             <div class="form-group mb-2">
                 <?php if ($sectors) : ?>
                     <label for="section_user" class="form-label required">Solicitante:</label>
