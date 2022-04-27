@@ -4,7 +4,7 @@
             <div class="box-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="py-0 my-0">Chamados Abertos</h5>
-                    <a href="<?= url('app.list.state', ['user' => $user->Framework_User, 'state' => 1]); ?>" class="btn btn-primary btn-sm blue">Ver Todos</a>
+                    <a href="<?= url('app.list.state', ['user' => $user->Framework_User, 'state' => 1]); ?>" class="btn btn-danger">Ver Todos Chamados em Aberto</a>
                 </div>
             </div>
             <div class="box-content">
@@ -48,7 +48,7 @@
             <div class="box-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="py-0 my-0">Chamados Finalizados</h5>
-                    <a href="<?= url('app.list.state', ['user' => $user->Framework_User, 'state' => 2]); ?>" class="btn btn-primary btn-sm blue">Ver Todos</a>
+                    <a href="<?= url('app.list.state', ['user' => $user->Framework_User, 'state' => 2]); ?>" class="btn btn-danger">Ver Todos Chamados Finalizados</a>
                 </div>
             </div>
             <div class="box-content">
