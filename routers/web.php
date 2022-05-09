@@ -43,11 +43,11 @@ SimpleRouter::group(['prefix' => 'admin'], function () {
 
     SimpleRouter::get('/report/tickets', [AdminController::class, 'viewCreateReport'])->name('admin.view.report');
     SimpleRouter::post('/report/tickets/true', [AdminController::class, 'createReport'])->name('admin.create.report');
-    SimpleRouter::get('/report/output/file/{first}/{last}', [AdminController::class, 'outputReport'])->name('admin.output.report');
+    SimpleRouter::get('/report/output/file/{start_date}/{end_date}/{departament}', [AdminController::class, 'outputReport'])->name('admin.output.report');
 });
 
 SimpleRouter::group(['prefix' => 'request'], function () {
     SimpleRouter::post('/type/category', [HttpController::class, 'category'])->name('request.category');
-    SimpleRouter::post('/type/fields', [HttpController::class,'fields'])->name('request.category');
-    SimpleRouter::post('/type/entity', [HttpController::class,'entity'])->name('request.entity');
+    SimpleRouter::post('/type/fields', [HttpController::class, 'fields'])->name('request.category');
+    SimpleRouter::post('/type/entity', [HttpController::class, 'entity'])->name('request.entity');
 });

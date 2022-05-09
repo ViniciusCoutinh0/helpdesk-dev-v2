@@ -9,6 +9,7 @@ use App\Models\Sector\Sector;
 use App\Models\Ticket\Ticket;
 use App\Core\Mail;
 use App\Models\Rules\Rules;
+use App\Models\Ticket\Departament;
 use League\Csv\Writer;
 
 class AdminController extends User
@@ -105,33 +106,114 @@ class AdminController extends User
 
     public function viewCreateReport(array $data = []): void
     {
-        $message = $this->message;
-        echo $this->view->render('admin/report', compact('data', 'message'));
+        $departaments = (new Departament())->find()->all();
+
+        echo $this->view->render('admin/report', [
+            'data' => $data,
+            'message' => $this->message,
+            'departaments' => $departaments
+        ]);
     }
 
 
-    public function createReport(): void
+    public function createReport()
     {
-        $required = input()->all();
-        array_shift($required);
-        $required = array_map('clearHtml', $required);
+        $validated = [
+            'start_date'  => strip_tags(input('start_date')),
+            'end_date'    => strip_tags(input('end_date')),
+            'departament' => (int) input('departament')
+        ];
 
-        if (in_array('', $required)) {
-            $this->message->error('Existem campos em branco, por favor preencha todos os campos');
+        if (in_array('', $validated)) {
+            $this->message->error('Preencha todos os campos!');
             $this->viewCreateReport();
             return;
         }
 
-        $data = (new Ticket())->getAllTicketsByBetween($required['first_day'], $required['last_day']);
+        $departament = (new Departament())->findBy($validated['departament'])->first();
 
-        if (!$data) {
-            $this->message->error('Nenhum chamado encontrado entre as datas de ' . date('d/m', strtotime($required['first_day'])) . ' à ' . date('d/m', strtotime($required['last_day'])));
+        if (!$departament) {
+            $this->message->error('Departamento não encontrado!');
             $this->viewCreateReport();
             return;
         }
 
-        $this->message->success('Arquivo gerado com sucesso! Total de chamados no periódo selecionado: ' . count($data));
-        $this->viewCreateReport($data);
+        $tickets = (new Ticket())->getAllTicketsByBetween([
+            'start_date'  => $validated['start_date'],
+            'end_date'    => $validated['end_date'],
+            'departament' => $departament->NOME
+        ]);
+
+        if (!count($tickets)) {
+            $this->message->error('Nenhum registro encontrado!');
+            $this->viewCreateReport();
+            return;
+        }
+
+        $this->message->success(sprintf('Relatório de Chamados %s gerado com sucesso, total de %s registros.', $departament->NOME, count($tickets)));
+        $this->viewCreateReport($tickets);
+    }
+
+    public function outputReport(string $start_date, string $end_date, string $departament)
+    {
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Description: File Transfer');
+
+        $departament = (new Departament())->findBy($departament)->first();
+
+        $data = (new Ticket())->getAllTicketsByBetween([
+            'start_date'  => $start_date,
+            'end_date'    => $end_date,
+            'departament' => $departament->NOME
+        ]);
+
+        if (!count($data)) {
+            return;
+        }
+
+        $csv = Writer::createFromString('');
+        $csv->setDelimiter(';');
+        $header = [
+            'Protocolo',
+            'ID Artia',
+            'Departamento',
+            'Categoria',
+            'Sub Categoria',
+            utf8_decode('Atendente/Responsável'),
+            'Cliente/Solicitante',
+            utf8_decode('Inicialização'),
+            utf8_decode('Data de Criação'),
+            utf8_decode('Data de Finalização'),
+            utf8_decode('Horas de Abertura até a Finalização'),
+            utf8_decode('Plantão')
+        ];
+
+        $csv->insertOne($header);
+
+        $lines = [];
+        foreach ($data as $ticket) {
+            $startup = new \DateTime($ticket->INICIALIZACAO);
+            $end = new \DateTime($ticket->FINALIZACAO_ARTIA);
+            $interval = $startup->diff($end);
+
+            $lines[] = [
+                $ticket->TICKET_CHAMADO,
+                $ticket->ID_ARTIA,
+                utf8_decode($ticket->DEPARTAMENTO),
+                utf8_decode($ticket->CATEGORIA),
+                utf8_decode($ticket->SUB_CATEGORIA),
+                mb_convert_case($ticket->USUARIO_PROC, MB_CASE_TITLE, 'utf-8'),
+                $ticket->USUARIO, date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)),
+                date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)),
+                ($ticket->FINALIZACAO_ARTIA ? date('d/m/Y H:i:s', strtotime($ticket->FINALIZACAO_ARTIA)) : ''),
+                (!is_null($ticket->FINALIZACAO_ARTIA) ? ($interval->h + ($interval->days * 24)) . ':' . $interval->i . ':' . $interval->s : ''),
+                ($ticket->PLANTAO === 'S' ? 'SIM' : utf8_decode('NÃO'))
+            ];
+        }
+
+        $csv->insertAll($lines);
+        $csv->output('Relatório_Chamados_' . date('Y-m-d') . '.csv');
+        die();
     }
 
     public function viewUpdateUser(int $id): void
@@ -189,62 +271,6 @@ class AdminController extends User
 
         $this->message->success('Usuário editado com sucesso');
         $this->viewUpdateUser($id);
-    }
-
-    public function outputReport(string $first, string $last): void
-    {
-        header('Content-Type: text/csv; charset=UTF-8');
-        header('Content-Description: File Transfer');
-
-        $data = (new Ticket())->getAllTicketsByBetween($first, $last);
-
-        if (!count($data)) {
-            return;
-        }
-
-        $csv = Writer::createFromString('');
-        $csv->setDelimiter(';');
-        $header = [
-            'Protocolo',
-            'ID Artia',
-            'Departamento',
-            'Categoria',
-            'Sub Categoria',
-            utf8_decode('Atendente/Responsável'),
-            'Cliente/Solicitante',
-            utf8_decode('Inicialização'),
-            utf8_decode('Data de Criação'),
-            utf8_decode('Data de Finalização'),
-            utf8_decode('Horas de Abertura até a Finalização'),
-            utf8_decode('Plantão')
-        ];
-
-        $csv->insertOne($header);
-
-        $lines = [];
-        foreach ($data as $ticket) {
-            $startup = new \DateTime($ticket->INICIALIZACAO);
-            $end = new \DateTime($ticket->FINALIZACAO_ARTIA);
-            $interval = $startup->diff($end);
-
-            $lines[] = [
-                $ticket->TICKET_CHAMADO,
-                $ticket->ID_ARTIA,
-                utf8_decode($ticket->DEPARTAMENTO),
-                utf8_decode($ticket->CATEGORIA),
-                utf8_decode($ticket->SUB_CATEGORIA),
-                mb_convert_case($ticket->USUARIO_PROC, MB_CASE_TITLE, 'utf-8'),
-                $ticket->USUARIO, date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)),
-                date('d/m/Y H:i:s', strtotime($ticket->INICIALIZACAO)),
-                ($ticket->FINALIZACAO_ARTIA ? date('d/m/Y H:i:s', strtotime($ticket->FINALIZACAO_ARTIA)) : ''),
-                (!is_null($ticket->FINALIZACAO_ARTIA) ? ($interval->h + ($interval->days * 24)) . ':' . $interval->i . ':' . $interval->s : ''),
-                ($ticket->PLANTAO === 'S' ? 'SIM' : utf8_decode('NÃO'))
-            ];
-        }
-
-        $csv->insertAll($lines);
-        $csv->output('Relatório_Chamados_' . date('Y-m-d') . '.csv');
-        die();
     }
 
     public function viewCreateSector(): void

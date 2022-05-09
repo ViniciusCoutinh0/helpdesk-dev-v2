@@ -13,21 +13,21 @@ class Ticket extends Layer
      * Table name in Database
      *
      * @var string
-    */
+     */
     protected $table = 'TICKETS_CHAMADOS';
 
     /**
      * Primary Key
      *
      * @var string
-    */
+     */
     protected $prefix = 'TICKET_CHAMADO';
 
     /**
      * Files valid for upload
      *
      * @var array
-    */
+     */
     protected $isValid = [
         'image/jpeg',
         'image/png',
@@ -44,40 +44,40 @@ class Ticket extends Layer
      * @param mixed $top
      * @param int $state
      * @return null|array
-    */
+     */
     public function getTicketsByUsernameAndState(User $user, $top = 8, int $state = 1): ?array
     {
         return $this->find(($top ? 'TOP ' . $top . ' *' : '*'))
-        ->where(['USUARIO' => $user->Username, 'ESTADO' => $state])
-        ->orderBy('INICIALIZACAO', 'DESC')
-        ->all();
+            ->where(['USUARIO' => $user->Username, 'ESTADO' => $state])
+            ->orderBy('INICIALIZACAO', 'DESC')
+            ->all();
     }
 
     public function getAllTicketsByResponsableId(): ?array
     {
         return $this->find('TICKETS_CHAMADOS.*, USUARIOS_ARTIA.USUARIO_ARTIA')
-        ->join('USUARIOS_ARTIA', 'USUARIOS_ARTIA.COD_PROCFIT', '=', 'TICKETS_CHAMADOS.RESPONSAVEL_ARTIA')
-        ->where(['ESTADO' => 1])
-        ->all();
+            ->join('USUARIOS_ARTIA', 'USUARIOS_ARTIA.COD_PROCFIT', '=', 'TICKETS_CHAMADOS.RESPONSAVEL_ARTIA')
+            ->where(['ESTADO' => 1])
+            ->all();
     }
 
     /**
      * @param int $id
      * @return null|object
-    */
+     */
     public function getTicketById(int $id): ?object
     {
         return $this->findBy($id, 'TICKETS_CHAMADOS.* , Framework_Users.* , USUARIOS.NOME AS PROC_NOME')
-        ->join('USUARIOS', 'USUARIOS.USUARIO', '=', 'TICKETS_CHAMADOS.RESPONSAVEL_ARTIA')
-        ->join('Framework_Users', 'Framework_Users.Username', '=', 'TICKETS_CHAMADOS.USUARIO')
-        ->first();
+            ->join('USUARIOS', 'USUARIOS.USUARIO', '=', 'TICKETS_CHAMADOS.RESPONSAVEL_ARTIA')
+            ->join('Framework_Users', 'Framework_Users.Username', '=', 'TICKETS_CHAMADOS.USUARIO')
+            ->first();
     }
 
     /**
      * @param array $data
      * @param array $files
      * @return null|int
-    */
+     */
     public function createTicket(array $data, array $files = []): ?int
     {
         $encode = ['MESSAGE' => html_entity_decode($data['message']), 'DESCRIPTION' => html_entity_decode($data['description'])];
@@ -128,7 +128,7 @@ class Ticket extends Layer
      * @param int $id
      * @param int $id_artia
      * @return null|bool
-    */
+     */
     public function updateArtiaIdByTicketId(int $id, int $id_artia): ?bool
     {
         $ticket = (new Ticket())->findBy($id)->first();
@@ -142,10 +142,16 @@ class Ticket extends Layer
         return $ticket->save();
     }
 
-    public function getAllTicketsByBetween(string $first, string $last): ?array
+    public function getAllTicketsByBetween(array $data): ?array
     {
         return $this->find('TICKETS_CHAMADOS . * , USUARIOS . NOME USUARIO_PROC')
-        ->join('USUARIOS', 'USUARIOS . USUARIO', ' = ', 'TICKETS_CHAMADOS . RESPONSAVEL_ARTIA')
-        ->orWhere('CONVERT(DATE, TICKETS_CHAMADOS . INICIALIZACAO)', 'BETWEEN', "'{$first}' AND '{$last}'")->all();
+            ->join('USUARIOS', 'USUARIOS . USUARIO', ' = ', 'TICKETS_CHAMADOS . RESPONSAVEL_ARTIA')
+            ->where(['TICKETS_CHAMADOS.DEPARTAMENTO' => $data['departament']])
+            ->andWhere(
+                'CONVERT(DATE, TICKETS_CHAMADOS . INICIALIZACAO)',
+                sprintf('\'%s\' and \'%s\'', $data['start_date'], $data['end_date']),
+                'BETWEEN'
+            )
+            ->all();
     }
 }

@@ -59,7 +59,7 @@ abstract class Layer
 
     /**
      * @return \stdClass
-    */
+     */
     protected function data(): \stdClass
     {
         return $this->data;
@@ -69,7 +69,7 @@ abstract class Layer
      * @param string $columns
      * @param int $top
      * @return Layer
-    */
+     */
     public function find(string $columns = '*'): Layer
     {
         $this->statement = "SELECT {$columns} FROM dbo.{$this->table}";
@@ -80,7 +80,7 @@ abstract class Layer
      * @param int $prefix
      * @param string $columns [default = *]
      * @return Layer
-    */
+     */
     public function findBy(int $prefix, string $columns = '*'): Layer
     {
         $this->find($columns)->where([$this->prefix => $prefix]);
@@ -91,7 +91,7 @@ abstract class Layer
      * @param array $where
      * @param string $operator [dafault = AND]
      * @return Layer
-    */
+     */
     public function where(array $where, string $operator = 'AND'): Layer
     {
         if (count($where)) {
@@ -117,7 +117,7 @@ abstract class Layer
      * @param string $operator
      * @param string $table_link
      * @return Layer
-    */
+     */
     public function join(string $table, string $column, string $operator, string $on): Layer
     {
         $this->setClauseAppend('join', "INNER JOIN dbo.{$table} ON {$column} {$operator} {$on}");
@@ -130,7 +130,7 @@ abstract class Layer
      * @param string $operator
      * @param string $table_link
      * @return Layer
-    */
+     */
     public function left(string $table, string $column, string $operator, string $on): Layer
     {
         $this->setClauseAppend('left', "LEFT JOIN dbo.{$table} ON {$column} {$operator} {$on}");
@@ -143,7 +143,7 @@ abstract class Layer
      * @param string $operator
      * @param string $table_link
      * @return Layer
-    */
+     */
     public function right(string $table, string $column, string $operator, string $on): Layer
     {
         $this->setClauseAppend('right', "RIGHT JOIN dbo.{$table} ON {$column} {$operator} {$on}");
@@ -155,16 +155,22 @@ abstract class Layer
      * @param string $operator
      * @param string $value
      * @return Layer
-    */
+     */
     public function orWhere(string $column, string $operator, string $value): Layer
     {
         $this->setClauseAppend('orWhere', "{$column} {$operator} {$value} {{OR}}");
         return $this;
     }
 
+    public function andWhere(string $column, string $value, string $operator = '=')
+    {
+        $this->setClauseAppend('andWhere', sprintf('and %s %s %s', $column, $operator, $value));
+        return $this;
+    }
+
     /**
      * @return null|array
-    */
+     */
     public function all(): ?array
     {
         $find = Db::getInstance()->prepare($this->build(), [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
@@ -183,7 +189,7 @@ abstract class Layer
 
     /**
      * @return null|object
-    */
+     */
     public function first(): ?object
     {
         $find = Db::getInstance()->prepare($this->build(), [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
@@ -202,7 +208,7 @@ abstract class Layer
 
     /**
      * @return null|int
-    */
+     */
     public function count(): ?int
     {
         $find = Db::getInstance()->prepare($this->build(), [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
@@ -223,7 +229,7 @@ abstract class Layer
      * @param string $column
      * @param string $default [default = ASC]
      * @return Layer
-    */
+     */
     public function orderBy(string $column, string $default = 'ASC'): Layer
     {
         $this->order = "ORDER BY {$column} {$default}";
@@ -232,7 +238,7 @@ abstract class Layer
 
     /**
      * @return bool
-    */
+     */
     public function save(): bool
     {
         $column = $this->prefix;
@@ -257,7 +263,7 @@ abstract class Layer
 
     /**
      * @return bool
-    */
+     */
     public function destroy(): bool
     {
         $id = null;
@@ -272,24 +278,25 @@ abstract class Layer
 
     /**
      * @return string
-    */
+     */
     private function build(): string
     {
 
         return $this->statement . ' ' .
-        ($this->clauseAppended['join'] ?? null) .
-        ($this->clauseAppended['left'] ?? null) .
-        ($this->clauseAppended['right'] ?? null) . ' ' .
-        ($this->clause['where']['fields'] ?? null) . ' ' .
-        $this->handlerOrWhere() . ' ' .
-        ($this->order ?? null);
+            ($this->clauseAppended['join'] ?? null) .
+            ($this->clauseAppended['left'] ?? null) .
+            ($this->clauseAppended['right'] ?? null) . ' ' .
+            ($this->clause['where']['fields'] ?? null) . ' ' .
+            ($this->clauseAppended['andWhere'] ?? null) . ' ' .
+            $this->handlerOrWhere() . ' ' .
+            ($this->order ?? null);
     }
 
     /**
      * @param string $key
      * @param mixed $value
      * @return void
-    */
+     */
     private function setClause(string $key, $value): void
     {
         $this->clause[$key] = $value;
@@ -306,7 +313,7 @@ abstract class Layer
 
     /**
      * @return void
-    */
+     */
     private function hide(): void
     {
         if (count($this->hidden)) {
@@ -320,7 +327,7 @@ abstract class Layer
 
     /**
      * @return array
-    */
+     */
     private function filter(): array
     {
         $filter = (array) $this->data;
@@ -330,7 +337,7 @@ abstract class Layer
 
     /**
      * @return null|string
-    */
+     */
     private function handlerOrWhere(): ?string
     {
         if (isset($this->clauseAppended['orWhere'])) {
@@ -345,7 +352,7 @@ abstract class Layer
 
     /**
      * @return string
-    */
+     */
     private function append(): string
     {
         if (isset($this->clause['where'])) {
