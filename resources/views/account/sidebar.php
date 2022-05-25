@@ -10,7 +10,7 @@
                 </li>
             </ul>
         </div>
-        <?php if ($sector->Name === 'Suporte T.i' || $sector->Name === 'Desenvolvimento') : ?>
+        <?php if (in_array($sector->Framework_Sector, [1, 2, 3, 4, 16])) : ?>
             <div class="box-header">
                 <h4 class="px-0 my-0">Administrativo</h4>
             </div>
