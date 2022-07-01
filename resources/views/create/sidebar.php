@@ -23,7 +23,7 @@
                     </select>
                 <?php endif; ?>
             </div>
-            <div class="form-check">
+            <div class="form-check d-none">
                 <input type="checkbox" name="on_duty" id="on_duty" class="form-check-input">
                 <label for="on_duty" class="form-check-label">Plantão?</label>
             </div>

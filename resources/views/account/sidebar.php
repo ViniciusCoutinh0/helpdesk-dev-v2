@@ -1,4 +1,4 @@
-<div class="col-12 col-sm-4">
+﻿<div class="col-12 col-sm-4">
     <div class="box">
         <div class="box-header">
             <h4 class="px-0 my-0">Ações</h4>
@@ -10,7 +10,7 @@
                 </li>
             </ul>
         </div>
-        <?php if (in_array($sector->Framework_Sector, [1, 2, 3, 4, 16])) : ?>
+        <?php if (in_array($sector->Framework_Sector, [1, 2, 3, 4, 14, 16])) : ?>
             <div class="box-header">
                 <h4 class="px-0 my-0">Administrativo</h4>
             </div>

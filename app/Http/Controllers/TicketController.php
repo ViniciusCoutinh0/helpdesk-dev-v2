@@ -126,7 +126,7 @@ class TicketController extends Ticket
             'responsible' => (int) $subcategory->USUARIO_ARTIA,
             'estimated_effort' => floatval($subcategory->ESFORCO),
             'on_duty' => 'N',
-            'estimated_end' => date('Y-m-d H:i', strtotime('+' . (int) $subcategory->PRAZO_ESTIMADO . ' day'))
+            'estimated_end' => $this->estimatedEnd(date('Y-m-d H:i'), $subcategory->PRAZO_ESTIMADO),
         ];
 
         if (input()->exists('computer')) {
@@ -217,5 +217,32 @@ class TicketController extends Ticket
 
         Handler::createComment($ticket->ID_ARTIA, $message, $files);
         redirect(url('ticket.show', ['id' => $id]));
+    }
+
+    private function estimatedEnd(string $createdAt, int $estimatedEnd, string $defaultFinalHour = '18:00')
+    {
+        $createdAt = date_create($createdAt);
+
+        $day = $createdAt->format('l');
+
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+
+        $appendDay = 0;
+
+        if (in_array($day, $days)) {
+            return $createdAt->modify(sprintf('+%d days', $estimatedEnd))
+                ->format('Y-m-d H:i');
+        }
+
+        if ($day === 'Friday') {
+            $appendDay = 3;
+        } else if ($day === 'Saturday') {
+            $appendDay = 2;
+        } else if ($day === 'Sunday') {
+            $appendDay = 1;
+        }
+
+        return $createdAt->modify(sprintf('+%d days', $appendDay))
+            ->format(sprintf('Y-m-d %s', $defaultFinalHour));
     }
 }
