@@ -53,7 +53,6 @@ try {
     Token::loadCacheFile();
 
     SimpleRouter::start();
-} catch (InvalidPathException | InvalidFileException | NotFoundHttpException | TokenMismatchException $exception) {
-    echo $exception->getMessage();
-    exit();
+} catch (Throwable $exception) {
+    die('Ops! parece que algo deu errado!');
 }
